@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>images/dialog-cancel.png</file>
+        <file>images/logo.png</file>
+        <file>images/wallpaper_system.png</file>
+    </qresource>
+    <qresource prefix="/data">
+        <file>data/langpacks</file>
+        <file>data/timezones</file>
+    </qresource>
+</RCC>

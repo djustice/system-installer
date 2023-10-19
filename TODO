@@ -1,0 +1,16 @@
+todo
+
+userpage:
+  change previous label text
+
+colorpage:
+  change previous label text
+  set color button active
+  add widget color previews
+
+software page:
+  add listwidget for software selections, see: https://www.walletfox.com/course/qtcheckablelist.php
+  for adding checkboxes to qlistwidget's items
+
+networking:
+  call plasmawindowed org.kde.plasma.networkmanagement to configure network
