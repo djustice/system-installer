@@ -12,15 +12,18 @@
 // QtGui
 #include <QListWidget>
 #include <QMainWindow>
+#include <QMessageBox>
 #include <QPalette>
 #include <QSpacerItem>
 
 // QtNetwork
 #include <QTcpSocket>
+#include <QTimer>
 
 // local
 #include "colorchooser.h"
 #include "colorizedpixmap.h"
+#include "installationhandler.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -40,7 +43,12 @@ public slots:
     void quitButtonClicked();
 
     void preparePartitionsButtonClicked();
+    void preparePartitionsProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void deviceComboTextChanged(QString text);
+    double convertHumanSizeToBytes(QString text);
+    void destBootComboTextChanged(QString text);
+    void destRootComboTextChanged(QString text);
+    void destSwapComboTextChanged(QString text);
 
     void timeZoneClicked();
     void langPackClicked();
@@ -55,6 +63,9 @@ private:
     Ui::MainWindow *ui;
     ColorChooser *colorChooser;
     ColorizedPixmap *colorizedLogoPixmap;
+    InstallationHandler *installationHandler;
+
+    void validatePartitionPage();
 
     int m_currentPage;
 
@@ -64,5 +75,9 @@ private:
     QStringList m_langPacks;
 
     QString m_lsblkOutput;
+
+    bool currentRootPartValid = false;
+    bool currentBootPartValid = false;
+    bool currentSwapPartValid = false;
 };
 #endif // MAINWINDOW_H

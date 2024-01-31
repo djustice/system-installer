@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-#include "./ui_mainwindow.h"
+#include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -59,6 +59,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->previousPageLabel->setVisible(false);
     ui->previousButton->setVisible(false);
 
+    installationHandler = new InstallationHandler();
+
     this->setMaximumSize(777, 444);
 
     m_currentPage = 0;
@@ -87,55 +89,55 @@ void MainWindow::continueButtonClicked()
 
         m_currentPage = 1;
 
-        // ui->networkStatusProgress->setValue(33);
-        //
-        // QProcess *p = new QProcess;
-        // p->start("nmcli", QStringList() << "dev" << "wifi");
-        //
-        // if (!p->waitForStarted()) {
-        //
-        // }
-        //
-        // ui->networkStatusProgress->setValue(66);
-        //
-        // if (!p->waitForFinished()) {
-        //
-        // }
-        //
-        // ui->networkStatusProgress->setValue(100);
-        // ui->previousButton->setEnabled(true);
-        // ui->previousButton->repaint();
-        //
-        // QString out = p->readAllStandardOutput();
-        //
-        // bool connected = false;
-        // QString networkName = "";
-        // if (out.contains("\n"))
-        // {
-        //     for (QString l : out.split("\n")) {
-        //         qDebug () << l;
-        //         if (l.contains("*")) {
-        //             connected = true;
-        //             l.replace("  ", " ");
-        //             networkName = l.split(" ").at(5);
-        //         }
-        //     }
-        // }
-        //
-        // if (connected) {
-        //     ui->networkStatusLabel->setText("Network found: " + networkName);
-        ui->networkStatusLabel->setVisible(false);
-        //     ui->networkStatusProgress->setValue(100);
-        ui->networkStatusProgress->setVisible(false);
-        //     ui->networkCheckButton->setVisible(false);
-        //     ui->hostnameLine->setFocus();
-        // } else {
-        //     ui->networkStatusLabel->setText("No network found.");
-        //     ui->networkStatusProgress->setValue(0);
-        //     ui->networkCheckButton->setVisible(true);
-        //
-        //     connect(ui->networkCheckButton, SIGNAL(clicked()), this, SLOT(networkCheckClicked()));
-        // }
+        ui->networkStatusProgress->setValue(33);
+
+        QProcess *p = new QProcess;
+        p->start("nmcli", QStringList() << "dev" << "wifi");
+
+        if (!p->waitForStarted()) {
+
+        }
+
+        ui->networkStatusProgress->setValue(66);
+
+        if (!p->waitForFinished()) {
+
+        }
+
+        ui->networkStatusProgress->setValue(100);
+        ui->previousButton->setEnabled(true);
+        ui->previousButton->repaint();
+
+        QString out = p->readAllStandardOutput();
+
+        bool connected = false;
+        QString networkName = "";
+        if (out.contains("\n"))
+        {
+            for (QString l : out.split("\n")) {
+                qDebug () << l;
+                if (l.contains("*")) {
+                    connected = true;
+                    l.replace("  ", " ");
+                    networkName = l.split(" ").at(5);
+                }
+            }
+        }
+
+        if (connected) {
+            ui->networkStatusLabel->setText("Network found: " + networkName);
+            ui->networkStatusLabel->setVisible(false);
+            ui->networkStatusProgress->setValue(100);
+            ui->networkStatusProgress->setVisible(false);
+            ui->networkCheckButton->setVisible(false);
+            ui->hostnameLine->setFocus();
+        } else {
+            ui->networkStatusLabel->setText("No network found.");
+            ui->networkStatusProgress->setValue(0);
+            ui->networkCheckButton->setVisible(true);
+
+            connect(ui->networkCheckButton, SIGNAL(clicked()), this, SLOT(networkCheckClicked()));
+        }
 
         connect(ui->hostnameLine, SIGNAL(textChanged(QString)), this, SLOT(validateNetworkPage()));
         validateNetworkPage();
@@ -176,18 +178,44 @@ void MainWindow::continueButtonClicked()
         m_currentPage = 5;
 
         QProcess lsblkProc;
-        lsblkProc.start("lsblk");
+        lsblkProc.start("lsblk", QStringList());
         lsblkProc.waitForStarted();
         lsblkProc.waitForFinished();
         m_lsblkOutput = lsblkProc.readAllStandardOutput();
         for (QString line : m_lsblkOutput.split("\n")) {
-            if (line.contains(":0")) {
+            if (line.contains("disk")) {
                 QString deviceItem = line.simplified().split(" ").at(0) + " (" + line.simplified().split(" ").at(3) + ")";
                 ui->destDriveCombo->addItem("/dev/" + deviceItem);
             }
         }
+        ui->continueButton->setEnabled(true);
     } else if (m_currentPage == 5) {
+        if (ui->destDriveCombo->currentText().contains("1.8T") || ui->destDriveCombo->currentText().contains("476.9G")) {
+            qDebug() << "WRONG DRIVE";
+            QMessageBox::information(this, "Error", "Careful... check your installation drive.");
+        }
+
+        ui->stackedWidget_2->setCurrentIndex(5);
+        ui->previousPageLabel->setText("<i>Destination</i>");
+        ui->continueButton->setEnabled(false);
+        ui->progressBar->setValue(0);
+        ui->progressBar->setRange(0, 200);
+        m_currentPage = 5;
+
+        installationHandler->setRootDevice("/dev/" + ui->destRootCombo->currentText().split(": ").at(1));
+        installationHandler->setBootDevice("/dev/" + ui->destBootCombo->currentText().split(": ").at(1));
+        installationHandler->init(this);
+        installationHandler->installSystem();
         // todo: review selections and do actual installation here
+
+        QTimer *timer = new QTimer(this);
+        timer->setInterval(1000);
+        connect(timer, &QTimer::timeout, this, [=](){
+            qDebug() << ui->progressBar->value();
+            ui->progressBar->setValue(ui->progressBar->value() + 1);
+            ui->progressTextLabel->setText("Installing System...");
+        });
+        timer->start();
     }
 }
 
@@ -229,13 +257,29 @@ void MainWindow::previousButtonClicked()
 
 void MainWindow::quitButtonClicked()
 {
-    this->close();
+    ui->stackedWidget->setCurrentWidget(ui->configurationPage);
+    ui->stackedWidget_2->setCurrentIndex(3);
+    m_currentPage = 4;
+    continueButtonClicked();
+//    this->close();
 }
 
 void MainWindow::preparePartitionsButtonClicked()
 {
-    QProcess p;
-    p.execute("partitionmanager");
+    qDebug() << "A";
+    QProcess *p = new QProcess(this);
+    connect(p, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(preparePartitionsProcessFinished(int, QProcess::ExitStatus)));
+    p->startDetached("partitionmanager", QStringList());
+    qDebug() << "B";
+}
+
+void MainWindow::preparePartitionsProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    qDebug() << exitCode;
+    m_currentPage = 4;
+    ui->destDriveCombo->clear();
+    continueButtonClicked();
+        qDebug() << "C";
 }
 
 void MainWindow::colorButtonClicked()
@@ -387,7 +431,15 @@ void MainWindow::validateSoftwarePage()
 
 void MainWindow::deviceComboTextChanged(QString text)
 {
+    QObject::disconnect(ui->destRootCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(destRootComboTextChanged(QString)));
+    QObject::disconnect(ui->destBootCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(destBootComboTextChanged(QString)));
+    QObject::disconnect(ui->destSwapCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(destSwapComboTextChanged(QString)));
     ui->destRootCombo->clear();
+    ui->destRootCombo->addItem("Select [root] partition...");
+    ui->destBootCombo->clear();
+    ui->destBootCombo->addItem("Select [boot] partition...");
+    ui->destSwapCombo->clear();
+    ui->destSwapCombo->addItem("Select [swap] partition...");
 
     QString deviceName = text.split("/").at(2).split(" ").at(0);
     QProcess lsblkProc;
@@ -408,10 +460,92 @@ void MainWindow::deviceComboTextChanged(QString text)
                     itemText = itemTextList[1] + " Partition at: " + itemTextList[0];
                 }
                 ui->destRootCombo->addItem(itemText);
+                ui->destRootCombo->setCurrentIndex(0);
                 ui->destBootCombo->addItem(itemText);
+                ui->destBootCombo->setCurrentIndex(0);
                 ui->destSwapCombo->addItem(itemText);
+                ui->destSwapCombo->setCurrentIndex(0);
             }
         }
+    }
+
+    QObject::connect(ui->destRootCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(destRootComboTextChanged(QString)));
+    QObject::connect(ui->destBootCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(destBootComboTextChanged(QString)));
+    QObject::connect(ui->destSwapCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(destSwapComboTextChanged(QString)));
+}
+
+double MainWindow::convertHumanSizeToBytes(QString text)
+{
+    double mb = 0;
+    QString size = text.split(" ").at(0);
+    if (size.contains("T")) {
+        mb = size.split("T").at(0).toDouble() * 1024 * 1024 * 1024;
+    } else if (size.contains("G")) {
+        mb = size.split("G").at(0).toDouble() * 1024 * 1024;
+    } else if (size.contains("M")) {
+        mb = size.split("M").at(0).toDouble() * 1024;
+    } else {
+        mb = size.split("K").at(0).toDouble();
+    }
+
+    return mb;
+}
+
+void MainWindow::destRootComboTextChanged(QString text)
+{
+    if (convertHumanSizeToBytes(text) < 10000000) {
+        QMessageBox::information(this, "[root] size", "/ must be at least 10GB");
+    } else {
+        if (text.split(" ").at(1) == "EXT4") {
+            currentRootPartValid = true;
+        } else {
+            QMessageBox::information(this, "[root] filesystem", "/ must be formatted as EXT4, BTRFS or ZFS");
+            currentRootPartValid = false;
+        }
+    }
+
+    validatePartitionPage();
+}
+
+void MainWindow::destBootComboTextChanged(QString text)
+{
+    if (convertHumanSizeToBytes(text) < 100000) {
+        QMessageBox::information(this, "[boot] size", "/boot must be at least 100MB");
+    } else {
+        if (text.split(" ").at(1) == "VFAT") {
+            currentBootPartValid = true;
+        } else {
+            QMessageBox::information(this, "[boot] filesystem", "EFI/[boot] must be formatted as FAT32");
+            currentBootPartValid = false;
+        }
+    }
+
+    validatePartitionPage();
+}
+
+void MainWindow::destSwapComboTextChanged(QString text)
+{
+    if (convertHumanSizeToBytes(text) < 50000) {
+        QMessageBox::information(this, "[swap] size", "swap must be at least 50MB");
+        currentSwapPartValid = false;
+    } else {
+        if (text.split(" ").at(1) == "SWAP") {
+            currentSwapPartValid = true;
+        } else {
+            QMessageBox::information(this, "[swap] filesystem", "[swap] must be formatted as Linux Swap");
+            currentSwapPartValid = false;
+        }
+    }
+
+    validatePartitionPage();
+}
+
+void MainWindow::validatePartitionPage()
+{
+    if (currentRootPartValid && currentBootPartValid && currentSwapPartValid) {
+        ui->continueButton->setEnabled(true);
+    } else {
+        ui->continueButton->setEnabled(false);
     }
 }
 
@@ -419,4 +553,3 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-
