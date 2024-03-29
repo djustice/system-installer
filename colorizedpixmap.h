@@ -11,6 +11,7 @@
 class ColorizedPixmap : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit ColorizedPixmap(QWidget *parent = nullptr);
 
@@ -18,9 +19,6 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *) override;
-
-signals:
-
 
 };
 

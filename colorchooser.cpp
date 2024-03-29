@@ -36,37 +36,38 @@ void ColorChooser::mouseMoveEvent(QMouseEvent *event)
 void ColorChooser::mousePressEvent(QMouseEvent *event)
 {
     releaseMouse();
-    colorButton->setStyleSheet("QPushButton#colorButton { background-color : " + mouseColor.name() + "; color : " + mouseColor.name() + "; }");
+    colorButton->setStyleSheet(QStringLiteral("QPushButton#colorButton { background-color : ") + mouseColor.name() + QStringLiteral("; color : ") + mouseColor.name() + QStringLiteral("; }"));
     logoLabel->color = mouseColor;
     logoLabel->repaint();
-    installerWidget->setStyleSheet("QPushButton { background-color: black; \
+    installerWidget->setStyleSheet(QStringLiteral( \
+                                   "QPushButton { background-color: black; \
                                                   padding: 4px; \
-                                                  color : " + mouseColor.name() + "; \
-                                                  border: 1px solid " + mouseColor.name() + "; } \
-                                    QLabel { color : " + mouseColor.name() + "; } \
-                                    QRadioButton { color : " + mouseColor.name() + "; } \
-                                    QCheckBox { color : " + mouseColor.name() + "; } \
-                                    QComboBox { color : " + mouseColor.name() + "; \
+                                                  color : ") + mouseColor.name() + QStringLiteral("; \
+                                                  border: 1px solid ") + mouseColor.name() + QStringLiteral("; } \
+                                    QLabel { color : ") + mouseColor.name() + QStringLiteral("; } \
+                                    QRadioButton { color : ") + mouseColor.name() + QStringLiteral("; } \
+                                    QCheckBox { color : ") + mouseColor.name() + QStringLiteral("; } \
+                                    QComboBox { color : ") + mouseColor.name() + QStringLiteral("; \
                                                 background-color : #000000; } \
-                                    QGroupBox { color : " + mouseColor.name() + "; } \
-                                    QLineEdit { color : " + mouseColor.name() + "; } \
-                                    QListWidget { color : " + mouseColor.name() + "; \
+                                    QGroupBox { color : ") + mouseColor.name() + QStringLiteral("; } \
+                                    QLineEdit { color : ") + mouseColor.name() + QStringLiteral("; } \
+                                    QListWidget { color : ") + mouseColor.name() + QStringLiteral("; \
                                                   selection-color : #000000; \
-                                                  selection-background-color : " + mouseColor.name() + "; } \
-                                    QScrollBar::vertical { border : 1px solid " + mouseColor.name() + "; \
+                                                  selection-background-color : ") + mouseColor.name() + QStringLiteral("; } \
+                                    QScrollBar::vertical { border : 1px solid ") + mouseColor.name() + QStringLiteral("; \
                                                            background : #000000; \
                                                            width : 15px; } \
-                                    QScrollBar::handle { background : #000000; border : 1px solid " + mouseColor.name() + "; } \
-                                    QScrollBar::up-arrow::vertical, QScrollBar::down-arrow::vertical { background : #000000; border : 1px solid " + mouseColor.name() + "; } \
-                                    QScrollBar::add-line::vertical, QScrollBar::sub-line::vertical { background : #000000; border : 1px solid " + mouseColor.name() + "; } \
-                                    QDateTimeEdit { color : " + mouseColor.name() + "; }");
+                                    QScrollBar::handle { background : #000000; border : 1px solid ") + mouseColor.name() + QStringLiteral("; } \
+                                    QScrollBar::up-arrow::vertical, QScrollBar::down-arrow::vertical { background : #000000; border : 1px solid ") + mouseColor.name() + QStringLiteral("; } \
+                                    QScrollBar::add-line::vertical, QScrollBar::sub-line::vertical { background : #000000; border : 1px solid ") + mouseColor.name() + QStringLiteral("; } \
+                                    QDateTimeEdit { color : ") + mouseColor.name() + QStringLiteral("; }"));
     this->close();
 }
 
 void ColorChooser::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.drawPixmap(0, 0, width(), height(), QPixmap(":images/images/wallpaper_system.png"));
+    painter.drawPixmap(0, 0, width(), height(), QPixmap(QString::fromUtf8(":images/images/wallpaper_system.png")));
     painter.setCompositionMode(QPainter::CompositionMode_Darken);
     QBrush brush(mouseColor);
     QPen pen(brush, 3000);

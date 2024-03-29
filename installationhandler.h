@@ -9,11 +9,11 @@
 #include <QMap>
 #include <QPointer>
 
-#include <KAuth>
+#include <KF6/KAuthCore/KAuth/ActionReply>
 
-#include <KIO/CopyJob>
-#include <KIO/SimpleJob>
-#include <KIO/MkdirJob>
+#include <KF6/KIOCore/KIO/CopyJob>
+#include <KF6/KIOCore/KIO/SimpleJob>
+#include <KF6/KIOCore/KIO/MkdirJob>
 
 struct UserAccountData {
     QString login;
@@ -76,7 +76,7 @@ public:
     void setBootDevice(const QString& s) { m_bootDevice = s; }
     QString bootDevice() { return m_bootDevice; }
 
-public slots:
+public Q_SLOTS:
     void partitionMounted(KJob*);
     void partitionUnmounted(KJob*);
     void parseUnsquashfsOutput(int);

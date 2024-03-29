@@ -37,7 +37,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-public slots:
+public Q_SLOTS:
     void previousButtonClicked();
     void continueButtonClicked();
     void quitButtonClicked();

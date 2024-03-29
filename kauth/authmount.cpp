@@ -8,21 +8,21 @@
 
 ActionReply AuthMount::mount(const QVariantMap &args)
 {
-    QString root = args["root"].toString();
-    QString boot = args["boot"].toString();
+    QString root = args[QStringLiteral("root")].toString();
+    QString boot = args[QStringLiteral("boot")].toString();
 
     QProcess pMountRoot;
-    pMountRoot.start("mount", QStringList() << root << "/new/root");
+    pMountRoot.start(QStringLiteral("mount"), QStringList() << root << QStringLiteral("/new/root"));
     pMountRoot.waitForFinished();
-    pMountRoot.start("mkdir", QStringList() << "/new/root/boot");
+    pMountRoot.start(QStringLiteral("mkdir"), QStringList() << QStringLiteral("/new/root/boot"));
     pMountRoot.waitForFinished();
     QProcess pMountBoot;
-    pMountBoot.start("mount", QStringList() << boot << "/new/root/boot");
+    pMountBoot.start(QStringLiteral("mount"), QStringList() << boot << QStringLiteral("/new/root/boot"));
     pMountBoot.waitForFinished();
 
     m_process = new QProcess(this);
     QProcessEnvironment env;
-    env.insert("LC_ALL", "C");
+    env.insert(QStringLiteral("LC_ALL"), QStringLiteral("C"));
     m_process->setProcessEnvironment(env);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
 
@@ -31,14 +31,14 @@ ActionReply AuthMount::mount(const QVariantMap &args)
 
 ActionReply AuthMount::unmount(const QVariantMap& args)
 {
-    QString root = args["root"].toString();
-    QString boot = args["boot"].toString();
+    QString root = args[QStringLiteral("root")].toString();
+    QString boot = args[QStringLiteral("boot")].toString();
 
-    m_process->start("sync", QStringList());
+    m_process->start(QStringLiteral("sync"), QStringList());
     m_process->waitForFinished();
-    m_process->start("umount", QStringList() << root << "/new/root/boot");
+    m_process->start(QStringLiteral("umount"), QStringList() << root << QStringLiteral("/new/root/boot"));
     m_process->waitForFinished();
-    m_process->start("umount", QStringList() << boot << "/new/root");
+    m_process->start(QStringLiteral("umount"), QStringList() << boot << QStringLiteral("/new/root"));
     m_process->waitForFinished();
 
     return ActionReply::SuccessReply();
@@ -46,36 +46,36 @@ ActionReply AuthMount::unmount(const QVariantMap& args)
 
 ActionReply AuthMount::unsquash(const QVariantMap& args)
 {
-    QString sfs = args["sfs"].toString();
+    QString sfs = args[QStringLiteral("sfs")].toString();
 
     connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(unsquashFsDone(int)));
     connect(m_process, SIGNAL(readyRead()), this, SLOT(parseUnsquashFsOutput()));
-    m_process->start("unsquashfs", QStringList() << "-f" << "-d" << "/new/root" << sfs, QIODevice::ReadOnly);
+    m_process->start(QStringLiteral("unsquashfs"), QStringList() << QStringLiteral("-f") << QStringLiteral("-d") << QStringLiteral("/new/root") << sfs, QIODevice::ReadOnly);
 
     return ActionReply::SuccessReply();
 }
 
 void AuthMount::parseUnsquashFsOutput()
 {
-    QString out = m_process->readLine(2048);
-
-    if (out.contains(QChar(']'))) {     // todo: make me pretty
-        QString parsed = out.split(QChar(']')).at(1);
-        QStringList members = parsed.split(QChar('/'));
-        QString firstMem = members.at(0);
-        firstMem = firstMem.remove(QChar(' '));
-        int one = firstMem.toInt();
-        QString secondMem = members.at(1);
-        secondMem = secondMem.split(QChar(' ')).at(0);
-        int two = secondMem.toInt();
-        int val = (one * 100) / two;
-        qDebug() << val;
-        HelperSupport::progressStep(val);
-        QFile f("/tmp/unsqfs");
-        f.remove();
-        f.open(QIODevice::WriteOnly);
-        QTextStream(&f) << val;
-    }
+    // QString out = m_process->readLine(2048);
+    //
+    // if (out.contains(QChar(']'))) {     // todo: make me pretty
+    //     QString parsed = out.split(QChar(']')).at(1);
+    //     QStringList members = parsed.split(QChar('/'));
+    //     QString firstMem = members.at(0);
+    //     firstMem = firstMem.remove(QChar(' '));
+    //     int one = firstMem.toInt();
+    //     QString secondMem = members.at(1);
+    //     secondMem = secondMem.split(QChar(' ')).at(0);
+    //     int two = secondMem.toInt();
+    //     int val = (one * 100) / two;
+    //     qDebug() << val;
+    //     HelperSupport::progressStep(val);
+    //     QFile f("/tmp/unsqfs");
+    //     f.remove();
+    //     f.open(QIODevice::WriteOnly);
+    //     QTextStream(&f) << val;
+    // }
 }
 
 // void AuthMount::handleProgress(int i)
@@ -86,7 +86,7 @@ void AuthMount::parseUnsquashFsOutput()
 ActionReply AuthMount::bootctl()
 {
     QProcess p;
-    p.execute("arch-chroot", QStringList() << "/new/root" << "bootctl" << "install");
+    p.execute(QStringLiteral("arch-chroot"), QStringList() << QStringLiteral("/new/root") << QStringLiteral("bootctl") << QStringLiteral("install"));
     p.waitForFinished();
 
     return ActionReply::SuccessReply();

@@ -9,7 +9,7 @@ ColorizedPixmap::ColorizedPixmap(QWidget *parent)
 void ColorizedPixmap::paintEvent(QPaintEvent* event)
 {
     QPainter painter(this);
-    painter.drawPixmap(0, 0, width(), height(), QPixmap(":/images/images/logo.png"));
+    painter.drawPixmap(0, 0, width(), height(), QPixmap(QStringLiteral(":/images/images/logo.png")));
     painter.setCompositionMode(QPainter::CompositionMode_Darken);
     painter.fillRect(0, 0, 666, 100, color);
 }

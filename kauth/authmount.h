@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QObject>
 #include <QProcess>
+#include <QStringLiteral>
 
 #include <KAuth/ActionReply>
 #include <KAuth/HelperSupport>
@@ -16,6 +17,7 @@ using namespace KAuth;
 class AuthMount : public QObject
 {
     Q_OBJECT
+
 public Q_SLOTS:
     ActionReply mount(const QVariantMap &args);
     ActionReply unmount(const QVariantMap &args);
