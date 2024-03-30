@@ -246,7 +246,7 @@
       <item>
        <widget class="QPushButton" name="quitButton">
         <property name="text">
-         <string>Debug</string>
+         <string>Quit</string>
         </property>
         <property name="icon">
          <iconset theme="window-close">

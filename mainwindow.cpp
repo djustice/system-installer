@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
         m_timeZones << line;
     }
 
+    ui->timeZoneListWidget->setCurrentRow(0);
     f_timeZones.close();
 
     QFile f_langPacks(QStringLiteral(":/data/data/langpacks"));
@@ -40,9 +41,12 @@ MainWindow::MainWindow(QWidget *parent)
         m_langPacks << line;
     }
 
+    ui->langPackListWidget->setCurrentRow(0);
     f_langPacks.close();
 
     ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
+
+    setMouseTracking(true);
 
     ui->frame->setStyleSheet(QStringLiteral("background-color: black;"));
 
@@ -67,6 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(ui->timeZoneListWidget, SIGNAL(itemSelectionChanged()), this, SLOT(timeZoneClicked()));
     QObject::connect(ui->langPackListWidget, SIGNAL(itemSelectionChanged()), this, SLOT(langPackClicked()));
+    QObject::connect(ui->keymapButton, SIGNAL(clicked()), this, SLOT(keymapClicked()));
     QObject::connect(ui->preparePartitionsButton, SIGNAL(clicked()), this, SLOT(preparePartitionsButtonClicked()));
     QObject::connect(ui->destDriveCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(deviceComboTextChanged(QString)));
     QObject::connect(ui->colorButton, SIGNAL(clicked()), this, SLOT(colorButtonClicked()));
@@ -257,11 +262,40 @@ void MainWindow::previousButtonClicked()
 
 void MainWindow::quitButtonClicked()
 {
-    ui->stackedWidget->setCurrentWidget(ui->configurationPage);
-    ui->stackedWidget_2->setCurrentIndex(3);
-    m_currentPage = 4;
-    continueButtonClicked();
-//    this->close();
+    // ui->stackedWidget->setCurrentWidget(ui->configurationPage);
+    // ui->stackedWidget_2->setCurrentIndex(3);
+    // m_currentPage = 4;
+    // continueButtonClicked();
+    this->close();
+}
+
+void MainWindow::keymapClicked()
+{
+    localeMenu = new QMenu(this);
+
+    QString currentTimeZoneData = m_timeZones.at(ui->timeZoneListWidget->currentRow());
+    QStringList locales = currentTimeZoneData.split(QStringLiteral(":")).at(1).split(QStringLiteral(","));
+    QStringListIterator i(locales);
+    while (i.hasNext()) {
+        QString locale = i.next();
+
+        if (locale.contains(QStringLiteral("."))) {
+            QAction *act = new QAction(this);
+            act->setText(locale);
+            act->setData(locale);
+            localeMenu->addAction(act);
+        }
+    }
+
+    grabMouse();
+    localeMenu->popup(QCursor::pos());
+    releaseMouse();
+
+    connect(localeMenu, &QMenu::triggered, [this] (QAction* a) {
+        ui->keymapButton->setText(a->data().toString());
+    });
+
+    // ui->keymapButton->setText(currentLangPackData.split(QStringLiteral(":")).at(0));
 }
 
 void MainWindow::preparePartitionsButtonClicked()

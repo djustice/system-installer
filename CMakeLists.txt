@@ -1,9 +1,11 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.29)
 
 project(system-installer VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED OFF)
+
+cmake_policy(SET CMP0160 OLD)
 
 find_package(ECM 6.0.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -11,10 +13,8 @@ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(ECMDeprecationSettings)
 include(ECMInstallIcons)
 include(ECMPoQmTools)
-include(ECMAddQch)
 include(KDEInstallDirs)
 include(KDECMakeSettings)
-include(KDECompilerSettings)
 include(FeatureSummary)
 include(GNUInstallDirs)
 
@@ -26,8 +26,6 @@ ecm_set_disabled_deprecation_versions(
     QT 6.4.0
     KF 5.240
 )
-
-option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)" OFF)
 
 find_package(Qt6DBus 6.5.0 CONFIG REQUIRED)
 
@@ -64,9 +62,8 @@ set(PROJECT_SOURCES
 add_executable(system-installer_authmount kauth/authmount.cpp)
 target_link_libraries(system-installer_authmount KF6::AuthCore)
 
-add_executable(system-installer
-    ${PROJECT_SOURCES}
-)
+add_executable(system-installer ${PROJECT_SOURCES})
+target_compile_options(system-installer PRIVATE -Wno-dev)
 
 target_link_libraries(system-installer
     PUBLIC
@@ -80,7 +77,6 @@ target_link_libraries(system-installer
 install(TARGETS system-installer_authmount DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
 
 kauth_install_helper_files(system-installer_authmount org.kde.systeminstaller root)
-
 kauth_install_actions(org.kde.systeminstaller kauth/org.kde.systeminstaller.actions)
 
 install(TARGETS system-installer
@@ -88,3 +84,4 @@ install(TARGETS system-installer
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+

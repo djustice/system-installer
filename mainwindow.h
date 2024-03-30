@@ -2,7 +2,9 @@
 #define MAINWINDOW_H
 
 // QtCore
+#include <QAction>
 #include <QFile>
+#include <QListIterator>
 #include <QProcess>
 #include <QTextStream>
 #include <QTimeZone>
@@ -12,6 +14,7 @@
 // QtGui
 #include <QListWidget>
 #include <QMainWindow>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPalette>
 #include <QSpacerItem>
@@ -52,6 +55,7 @@ public Q_SLOTS:
 
     void timeZoneClicked();
     void langPackClicked();
+    void keymapClicked();
     void networkCheckClicked();
     void colorButtonClicked();
 
@@ -68,6 +72,9 @@ private:
     void validatePartitionPage();
 
     int m_currentPage;
+
+    QMenu *localeMenu;
+    QList<QAction> localeActions;
 
     QProcess *p;
 
