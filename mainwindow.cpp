@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     installationHandler = new InstallationHandler();
 
-    this->setMaximumSize(777, 444);
+    this->setMaximumSize(777, 544);
 
     m_currentPage = 0;
 
