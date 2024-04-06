@@ -115,34 +115,34 @@ void MainWindow::continueButtonClicked()
 
         QString out = QString::fromUtf8(p->readAllStandardOutput());
 
-        bool connected = false;
-        QString networkName = QStringLiteral("");
-        if (out.contains(QStringLiteral("\n")))
-        {
-            for (QString l : out.split(QStringLiteral("\n"))) {
-                qDebug () << l;
-                if (l.contains(QStringLiteral("*"))) {
-                    connected = true;
-                    l.replace(QStringLiteral("  "), QStringLiteral(" "));
-                    networkName = l.split(QStringLiteral(" ")).at(5);
-                }
-            }
-        }
-
-        if (connected) {
-            ui->networkStatusLabel->setText(QStringLiteral("Network found: ") + networkName);
-            ui->networkStatusLabel->setVisible(false);
-            ui->networkStatusProgress->setValue(100);
-            ui->networkStatusProgress->setVisible(false);
-            ui->networkCheckButton->setVisible(false);
-            ui->hostnameLine->setFocus();
-        } else {
-            ui->networkStatusLabel->setText(QStringLiteral("No network found."));
-            ui->networkStatusProgress->setValue(0);
-            ui->networkCheckButton->setVisible(true);
-
-            connect(ui->networkCheckButton, SIGNAL(clicked()), this, SLOT(networkCheckClicked()));
-        }
+        // bool connected = false;
+        // QString networkName = QStringLiteral("");
+        // if (out.contains(QStringLiteral("\n")))
+        // {
+        //     for (QString l : out.split(QStringLiteral("\n"))) {
+        //         qDebug () << l;
+        //         if (l.contains(QStringLiteral("*"))) {
+        //             connected = true;
+        //             l.replace(QStringLiteral("  "), QStringLiteral(" "));
+        //             networkName = l.split(QStringLiteral(" ")).at(5);
+        //         }
+        //     }
+        // }
+        //
+        // if (connected) {
+        //     ui->networkStatusLabel->setText(QStringLiteral("Network found: ") + networkName);
+        //     ui->networkStatusLabel->setVisible(false);
+        //     ui->networkStatusProgress->setValue(100);
+        //     ui->networkStatusProgress->setVisible(false);
+        //     ui->networkCheckButton->setVisible(false);
+        //     ui->hostnameLine->setFocus();
+        // } else {
+        //     ui->networkStatusLabel->setText(QStringLiteral("No network found."));
+        //     ui->networkStatusProgress->setValue(0);
+        //     ui->networkCheckButton->setVisible(true);
+        //
+        //     connect(ui->networkCheckButton, SIGNAL(clicked()), this, SLOT(networkCheckClicked()));
+        // }
 
         connect(ui->hostnameLine, SIGNAL(textChanged(QString)), this, SLOT(validateNetworkPage()));
         validateNetworkPage();
@@ -287,9 +287,7 @@ void MainWindow::keymapClicked()
         }
     }
 
-    grabMouse();
     localeMenu->popup(QCursor::pos());
-    releaseMouse();
 
     connect(localeMenu, &QMenu::triggered, [this] (QAction* a) {
         ui->keymapButton->setText(a->data().toString());
