@@ -3,6 +3,7 @@
         <file>images/dialog-cancel.png</file>
         <file>images/logo.png</file>
         <file>images/wallpaper_system.png</file>
+	<file>images/start-here-system-red.png</file>
     </qresource>
     <qresource prefix="/data">
         <file>data/langpacks</file>

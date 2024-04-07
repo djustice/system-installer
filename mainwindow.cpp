@@ -74,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->keymapButton, SIGNAL(clicked()), this, SLOT(keymapClicked()));
     QObject::connect(ui->preparePartitionsButton, SIGNAL(clicked()), this, SLOT(preparePartitionsButtonClicked()));
     QObject::connect(ui->destDriveCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(deviceComboTextChanged(QString)));
+    QObject::connect(ui->destDriveCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(deviceComboTextChanged(QString)));
     QObject::connect(ui->colorButton, SIGNAL(clicked()), this, SLOT(colorButtonClicked()));
     QObject::connect(ui->previousButton, SIGNAL(clicked()), this, SLOT(previousButtonClicked()));
     QObject::connect(ui->continueButton, SIGNAL(clicked()), this, SLOT(continueButtonClicked()));
