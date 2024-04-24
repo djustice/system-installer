@@ -1,6 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+// KDE
+#include <KF6/KCoreAddons/KAboutData>
+
 // QtCore
 #include <QAction>
 #include <QFile>
@@ -12,12 +15,14 @@
 #include <QStringList>
 
 // QtGui
+#include <QIcon>
 #include <QListWidget>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPalette>
 #include <QSpacerItem>
+#include <qt6/QtWidgets/QWidget>
 
 // QtNetwork
 #include <QTcpSocket>

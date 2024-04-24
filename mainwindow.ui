@@ -20,8 +20,7 @@
    <string>Installer</string>
   </property>
   <property name="windowIcon">
-   <iconset theme="start-here-system.svg" resource="resources.qrc">
-    <normaloff>:/images/images/start-here-system-red.png</normaloff>:/images/images/start-here-system-red.png</iconset>
+   <iconset theme="start-here-system"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_5">

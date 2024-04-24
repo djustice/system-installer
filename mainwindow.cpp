@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->previousButton->setVisible(false);
 
+    QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/images/start-here-system-red.png")));
+
     QFile f_timeZones(QStringLiteral(":/data/data/timezones"));
 
     if (!f_timeZones.open(QIODevice::ReadOnly))
@@ -216,7 +218,7 @@ void MainWindow::continueButtonClicked()
 
         QTimer *timer = new QTimer(this);
         timer->setInterval(1000);
-        connect(timer, &QTimer::timeout, this, [=](){
+        connect(timer, &QTimer::timeout, this, [=, this](){
             qDebug() << ui->progressBar->value();
             ui->progressBar->setValue(ui->progressBar->value() + 1);
             ui->progressTextLabel->setText(QStringLiteral("Installing System..."));
