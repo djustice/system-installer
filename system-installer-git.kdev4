@@ -1,4 +1,4 @@
 [Project]
 CreatedFrom=CMakeLists.txt
 Manager=KDevCMakeManager
-Name=system-installer
+Name=system-installer-git

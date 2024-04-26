@@ -3,6 +3,7 @@
 
 // KDE
 #include <KF6/KCoreAddons/KAboutData>
+#include <KF6/KI18n/KLocalizedString>
 
 // QtCore
 #include <QAction>

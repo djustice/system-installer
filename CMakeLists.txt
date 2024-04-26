@@ -42,6 +42,7 @@ find_package(KF6
         Auth
         CoreAddons
         KIO
+        I18n
 )
 
 set(PROJECT_SOURCES
@@ -72,6 +73,7 @@ target_link_libraries(system-installer
     Qt6::Network
     KF6::AuthCore
     KF6::KIOCore
+    KF6::I18n
 )
 
 install(TARGETS system-installer_authmount DESTINATION ${KAUTH_HELPER_INSTALL_DIR})

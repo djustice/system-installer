@@ -8,7 +8,31 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->previousButton->setVisible(false);
 
-    QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/images/start-here-system-red.png")));
+    // TODO: implement kaboutdata and a .desktop file
+    //       to setWindowIcon for wayland.
+
+    KLocalizedString::setApplicationDomain(QByteArrayLiteral("systeminstaller"));
+    QCoreApplication::setOrganizationDomain(QStringLiteral("org.kde"));
+
+    KAboutData aboutData(QStringLiteral("org.kde.systeminstall"),
+                         QStringLiteral("System Installer"),
+                         QStringLiteral("0.0.1"),
+                         QStringLiteral("Installs System"),
+                         KAboutLicense::GPL_V3,
+                         QStringLiteral("(ↄ) 2024"),
+                         QStringLiteral(""),
+                         QStringLiteral("https://system-linux.com"),
+                         QStringLiteral("djustice@system-linux.com"));
+
+    aboutData.addAuthor(QStringLiteral("Drake Justice"),
+                        QStringLiteral("Developer"),
+                        QStringLiteral("djustice@system-linux.com"),
+                        QStringLiteral("https://system-linux.com"),
+                        QStringLiteral("djustice"));
+
+    KAboutData::setApplicationData(aboutData);
+
+    QGuiApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("start-here-system")));
 
     QFile f_timeZones(QStringLiteral(":/data/data/timezones"));
 
