@@ -39,26 +39,34 @@ void InstallationHandler::init(QWidget* parent)
     mountRootAction.setHelperId(QString::fromUtf8("org.kde.systeminstaller"));
     mountRootAction.setArguments(args);
     ExecuteJob *mountRootJob = mountRootAction.execute();
+    qDebug() << "org.kde.systeminstaller.mount: start";
     mountRootJob->exec();
+    qDebug() << "org.kde.systeminstaller.mount: end";
 
     Action unsquashAction(QString::fromUtf8("org.kde.systeminstaller.unsquash"));
     unsquashAction.setHelperId(QString::fromUtf8("org.kde.systeminstaller"));
     unsquashAction.setArguments(args);
     unsquashAction.setTimeout(800000);
     ExecuteJob *unsquashJob = unsquashAction.execute();
+    qDebug() << "org.kde.systeminstaller.unsquash: start";
     unsquashJob->exec();
+    qDebug() << "org.kde.systeminstaller.unsquash: end";
 
     Action bootctlAction(QString::fromUtf8("org.kde.systeminstaller.bootctl"));
     bootctlAction.setHelperId(QString::fromUtf8("org.kde.systeminstaller"));
     bootctlAction.setArguments(args);
     ExecuteJob *bootctlJob = bootctlAction.execute();
+    qDebug() << "org.kde.systeminstaller.bootctl: start";
     bootctlJob->exec();
+    qDebug() << "org.kde.systeminstaller.bootctl: end";
 
     Action unmountRootAction(QString::fromUtf8("org.kde.systeminstaller.unmount"));
     unmountRootAction.setHelperId(QString::fromUtf8("org.kde.systeminstaller"));
     unmountRootAction.setArguments(args);
     ExecuteJob *unmountRootJob = unmountRootAction.execute();
+    qDebug() << "org.kde.systeminstaller.unmount: start";
     unmountRootJob->exec();
+    qDebug() << "org.kde.systeminstaller.unmount: end";
 }
 
 void InstallationHandler::percent(KJob* job, unsigned long val)
@@ -83,7 +91,7 @@ void InstallationHandler::installSystem()
     //
     // m_process->start("unsquashfs", arguments);
 
-    ///////////
+    /////////
     // QVariantMap unsquashArgs;
     // unsquashArgs["device"] = m_bootDevice;
     // unsquashArgs["path"] = "/new/root/boot";

@@ -76,6 +76,7 @@ target_link_libraries(system-installer
     KF6::I18n
 )
 
+install(PROGRAMS org.kde.system-installer.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 install(TARGETS system-installer_authmount DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
 
 kauth_install_helper_files(system-installer_authmount org.kde.systeminstaller root)

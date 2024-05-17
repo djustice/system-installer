@@ -11,10 +11,10 @@ MainWindow::MainWindow(QWidget *parent)
     // TODO: implement kaboutdata and a .desktop file
     //       to setWindowIcon for wayland.
 
-    KLocalizedString::setApplicationDomain(QByteArrayLiteral("systeminstaller"));
+    KLocalizedString::setApplicationDomain(QByteArrayLiteral("system-installer"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("org.kde"));
 
-    KAboutData aboutData(QStringLiteral("org.kde.systeminstall"),
+    KAboutData aboutData(QStringLiteral("org.kde.system-installer"),
                          QStringLiteral("System Installer"),
                          QStringLiteral("0.0.1"),
                          QStringLiteral("Installs System"),
@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     KAboutData::setApplicationData(aboutData);
 
+    QGuiApplication::setDesktopFileName(QStringLiteral("org.kde.system-installer"));
     QGuiApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("start-here-system")));
 
     QFile f_timeZones(QStringLiteral(":/data/data/timezones"));
@@ -243,9 +244,15 @@ void MainWindow::continueButtonClicked()
         QTimer *timer = new QTimer(this);
         timer->setInterval(1000);
         connect(timer, &QTimer::timeout, this, [=, this](){
-            qDebug() << ui->progressBar->value();
-            ui->progressBar->setValue(ui->progressBar->value() + 1);
-            ui->progressTextLabel->setText(QStringLiteral("Installing System..."));
+            int value = ui->progressBar->value();
+            if (value < ui->progressBar->maximum()) {
+                ui->progressBar->setValue(value + 1);
+                ui->progressTextLabel->setText("Installing System...");
+            } else {
+                timer->stop();
+                qDebug() << "Installation complete";
+                ui->progressTextLabel->setText("Installation Complete");
+            }
         });
         timer->start();
     }
