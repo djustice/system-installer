@@ -34,6 +34,9 @@
 #include "colorizedpixmap.h"
 #include "installationhandler.h"
 
+// autouic
+#include "ui_mainwindow.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
