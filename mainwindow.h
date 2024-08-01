@@ -7,7 +7,9 @@
 
 // QtCore
 #include <QAction>
+#include <QDir>
 #include <QFile>
+#include <QFileInfoList>
 #include <QListIterator>
 #include <QProcess>
 #include <QTextStream>
@@ -49,6 +51,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void appendColorProcessOutput(QString output);
+
 public Q_SLOTS:
     void previousButtonClicked();
     void continueButtonClicked();
@@ -68,6 +72,8 @@ public Q_SLOTS:
     void networkCheckClicked();
     void colorButtonClicked();
 
+    void generateIconTheme();
+
     void validateNetworkPage();
     void validateUserPage();
     void validateSoftwarePage();
@@ -86,6 +92,9 @@ private:
     QList<QAction> localeActions;
 
     QProcess *p;
+    QProcess *m_iconColorProcess;
+
+    QTimer *m_iconColorTimer;
 
     QStringList m_timeZones;
     QStringList m_langPacks;

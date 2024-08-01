@@ -95,6 +95,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_currentPage = 0;
 
+    m_iconColorTimer = new QTimer(this);
+    m_iconColorTimer->setInterval(200);
+
     QObject::connect(ui->timeZoneListWidget, SIGNAL(itemSelectionChanged()), this, SLOT(timeZoneClicked()));
     QObject::connect(ui->langPackListWidget, SIGNAL(itemSelectionChanged()), this, SLOT(langPackClicked()));
     QObject::connect(ui->keymapButton, SIGNAL(clicked()), this, SLOT(keymapClicked()));
@@ -105,6 +108,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->previousButton, SIGNAL(clicked()), this, SLOT(previousButtonClicked()));
     QObject::connect(ui->continueButton, SIGNAL(clicked()), this, SLOT(continueButtonClicked()));
     QObject::connect(ui->quitButton, SIGNAL(clicked()), this, SLOT(quitButtonClicked()));
+    QObject::connect(m_iconColorTimer, SIGNAL(timeout()), this, SLOT(generateIconTheme()));
 }
 
 void MainWindow::continueButtonClicked()
@@ -142,34 +146,34 @@ void MainWindow::continueButtonClicked()
 
         QString out = QString::fromUtf8(p->readAllStandardOutput());
 
-        // bool connected = false;
-        // QString networkName = QStringLiteral("");
-        // if (out.contains(QStringLiteral("\n")))
-        // {
-        //     for (QString l : out.split(QStringLiteral("\n"))) {
-        //         qDebug () << l;
-        //         if (l.contains(QStringLiteral("*"))) {
-        //             connected = true;
-        //             l.replace(QStringLiteral("  "), QStringLiteral(" "));
-        //             networkName = l.split(QStringLiteral(" ")).at(5);
-        //         }
-        //     }
-        // }
-        //
-        // if (connected) {
-        //     ui->networkStatusLabel->setText(QStringLiteral("Network found: ") + networkName);
-        //     ui->networkStatusLabel->setVisible(false);
-        //     ui->networkStatusProgress->setValue(100);
-        //     ui->networkStatusProgress->setVisible(false);
-        //     ui->networkCheckButton->setVisible(false);
-        //     ui->hostnameLine->setFocus();
-        // } else {
-        //     ui->networkStatusLabel->setText(QStringLiteral("No network found."));
-        //     ui->networkStatusProgress->setValue(0);
-        //     ui->networkCheckButton->setVisible(true);
-        //
-        //     connect(ui->networkCheckButton, SIGNAL(clicked()), this, SLOT(networkCheckClicked()));
-        // }
+        bool connected = false;
+        QString networkName = QStringLiteral("");
+        if (out.contains(QStringLiteral("\n")))
+        {
+            for (QString l : out.split(QStringLiteral("\n"))) {
+                qDebug () << l;
+                if (l.contains(QStringLiteral("*"))) {
+                    connected = true;
+                    l.replace(QStringLiteral("  "), QStringLiteral(" "));
+                    networkName = l.split(QStringLiteral(" ")).at(5);
+                }
+            }
+        }
+
+        if (connected) {
+            ui->networkStatusLabel->setText(QStringLiteral("Network found: ") + networkName);
+            ui->networkStatusLabel->setVisible(false);
+            ui->networkStatusProgress->setValue(100);
+            ui->networkStatusProgress->setVisible(false);
+            ui->networkCheckButton->setVisible(false);
+            ui->hostnameLine->setFocus();
+        } else {
+            ui->networkStatusLabel->setText(QStringLiteral("No network found."));
+            ui->networkStatusProgress->setValue(0);
+            ui->networkCheckButton->setVisible(true);
+
+            connect(ui->networkCheckButton, SIGNAL(clicked()), this, SLOT(networkCheckClicked()));
+        }
 
         connect(ui->hostnameLine, SIGNAL(textChanged(QString)), this, SLOT(validateNetworkPage()));
         validateNetworkPage();
@@ -295,11 +299,11 @@ void MainWindow::previousButtonClicked()
 
 void MainWindow::quitButtonClicked()
 {
-    // ui->stackedWidget->setCurrentWidget(ui->configurationPage);
-    // ui->stackedWidget_2->setCurrentIndex(3);
-    // m_currentPage = 4;
-    // continueButtonClicked();
-    this->close();
+    ui->stackedWidget->setCurrentWidget(ui->configurationPage);
+    ui->stackedWidget_2->setCurrentIndex(1);
+    m_currentPage = 2;
+    continueButtonClicked();
+//    this->close();
 }
 
 void MainWindow::keymapClicked()
@@ -348,10 +352,34 @@ void MainWindow::colorButtonClicked()
 {
     colorChooser = new ColorChooser();
     colorChooser->setWindowState(Qt::WindowFullScreen);
-    colorChooser->colorButton = ui->colorButton;
-    colorChooser->logoLabel = colorizedLogoPixmap;
-    colorChooser->installerWidget = ui->centralwidget;
+    colorChooser->m_colorButton = ui->colorButton;
+    colorChooser->m_logoLabel = colorizedLogoPixmap;
+    colorChooser->m_installerWidget = ui->centralwidget;
+    colorChooser->m_colorIconSetTimer = m_iconColorTimer;
+
+    connect(colorChooser, SIGNAL(done()), this, SLOT(generateIconTheme()));
     colorChooser->show();
+}
+
+void MainWindow::generateIconTheme()
+{
+    sleep(2);
+    m_iconColorProcess = new QProcess(this);
+    m_iconColorProcess->start("rm", QStringList() << "-rf" << "/tmp/candy-icons");
+    m_iconColorProcess->waitForFinished();
+    appendColorProcessOutput("Creating new icon theme...");
+    m_iconColorProcess->start("cp", QStringList() << "-rfa" << "/usr/share/icons/candy-icons" << "/tmp");
+    m_iconColorProcess->waitForFinished();
+    appendColorProcessOutput("\n");
+    m_iconColorProcess->setWorkingDirectory("/tmp");
+    m_iconColorProcess->start("bash", QStringList() << "/usr/bin/system-installer_colorize-icons.sh" << "candy-icons" << colorizedLogoPixmap->color.name().last(6));
+    appendColorProcessOutput("Converting to " + colorizedLogoPixmap->color.name().last(6) + "...");
+
+}
+
+void MainWindow::appendColorProcessOutput(QString output)
+{
+    ui->colorProcessOutput->setText(ui->colorProcessOutput->text() + output);
 }
 
 void MainWindow::networkCheckClicked()

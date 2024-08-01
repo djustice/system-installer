@@ -20,12 +20,14 @@ class AuthMount : public QObject
 
 public Q_SLOTS:
     ActionReply mount(const QVariantMap &args);
-    ActionReply unmount(const QVariantMap &args);
-    void parseUnsquashFsOutput();
     ActionReply unsquash(const QVariantMap &args);
-    void unsquashFsDone(int);
+    ActionReply configure(const QVariantMap &args);
     ActionReply bootctl();
+    ActionReply unmount(const QVariantMap &args);
+
     // void handleProgress(int);
+    void unsquashFsDone(int); // ?
+    void parseUnsquashFsOutput(); // ?
 
 Q_SIGNALS:
     void percentage(int);

@@ -11,20 +11,43 @@ ActionReply AuthMount::mount(const QVariantMap &args)
     QString root = args[QStringLiteral("root")].toString();
     QString boot = args[QStringLiteral("boot")].toString();
 
-    QProcess pMountRoot;
-    pMountRoot.start(QStringLiteral("mount"), QStringList() << root << QStringLiteral("/new/root"));
-    pMountRoot.waitForFinished();
-    pMountRoot.start(QStringLiteral("mkdir"), QStringList() << QStringLiteral("/new/root/boot"));
-    pMountRoot.waitForFinished();
-    QProcess pMountBoot;
-    pMountBoot.start(QStringLiteral("mount"), QStringList() << boot << QStringLiteral("/new/root/boot"));
-    pMountBoot.waitForFinished();
-
-    m_process = new QProcess(this);
     QProcessEnvironment env;
     env.insert(QStringLiteral("LC_ALL"), QStringLiteral("C"));
+
+    m_process = new QProcess(this);
     m_process->setProcessEnvironment(env);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
+
+    m_process->start(QStringLiteral("mount"),
+                     QStringList() << root <<
+                     QStringLiteral("/new/root"));
+    m_process->waitForFinished();
+
+    m_process->start(QStringLiteral("mkdir"),
+                    QStringList() << QStringLiteral("/new/root/boot"));
+    m_process->waitForFinished();
+
+    m_process->start(QStringLiteral("mount"),
+                     QStringList() << boot <<
+                     QStringLiteral("/new/root/boot"));
+    m_process->waitForFinished();
+
+    return ActionReply::SuccessReply();
+}
+
+ActionReply AuthMount::configure(const QVariantMap &args)
+{
+    QProcessEnvironment env;
+    env.insert(QStringLiteral("LC_ALL"), QStringLiteral("C"));
+
+    QString root = args[QStringLiteral("root")].toString();
+
+    m_process = new QProcess(this);
+    m_process->setProcessEnvironment(env);
+
+    m_process->start(QStringLiteral("mount"),
+                     QStringList() << root <<
+                     QStringLiteral("/new/root"));
 
     return ActionReply::SuccessReply();
 }
@@ -47,11 +70,11 @@ ActionReply AuthMount::unmount(const QVariantMap& args)
 ActionReply AuthMount::unsquash(const QVariantMap& args)
 {
     QString sfs = args[QStringLiteral("sfs")].toString();
-
+qDebug() << "test1";
     connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(unsquashFsDone(int)));
     connect(m_process, SIGNAL(readyRead()), this, SLOT(parseUnsquashFsOutput()));
     m_process->start(QStringLiteral("unsquashfs"), QStringList() << QStringLiteral("-f") << QStringLiteral("-d") << QStringLiteral("/new/root") << sfs, QIODevice::ReadOnly);
-
+qDebug() << "test1";
     return ActionReply::SuccessReply();
 }
 
