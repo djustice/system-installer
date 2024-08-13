@@ -13,6 +13,7 @@
 #include <QListIterator>
 #include <QProcess>
 #include <QTextStream>
+#include <QThread>
 #include <QTimeZone>
 #include <QString>
 #include <QStringList>
@@ -78,6 +79,8 @@ public Q_SLOTS:
     void validateUserPage();
     void validateSoftwarePage();
 
+    void updateUi();
+
 private:
     Ui::MainWindow *ui;
     ColorChooser *colorChooser;
@@ -94,6 +97,7 @@ private:
     QProcess *p;
     QProcess *m_iconColorProcess;
 
+    QThread *m_colorProcessThread;
     QTimer *m_iconColorTimer;
 
     QStringList m_timeZones;

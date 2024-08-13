@@ -363,18 +363,54 @@ void MainWindow::colorButtonClicked()
 
 void MainWindow::generateIconTheme()
 {
-    sleep(2);
-    m_iconColorProcess = new QProcess(this);
+    m_colorProcessThread = new QThread(this);
+
+    m_iconColorTimer = new QTimer(this);
+    m_iconColorTimer->setInterval(500);
+
+    connect(m_iconColorTimer, SIGNAL(timeout()), this, SLOT(updateUi()));
+
+    m_iconColorTimer->start();
+
+    m_iconColorProcess = new QProcess();
+    m_iconColorProcess->moveToThread(m_colorProcessThread);
+    updateUi();
     m_iconColorProcess->start("rm", QStringList() << "-rf" << "/tmp/candy-icons");
-    m_iconColorProcess->waitForFinished();
     appendColorProcessOutput("Creating new icon theme...");
+    m_iconColorProcess->waitForFinished();
     m_iconColorProcess->start("cp", QStringList() << "-rfa" << "/usr/share/icons/candy-icons" << "/tmp");
     m_iconColorProcess->waitForFinished();
-    appendColorProcessOutput("\n");
+    updateUi();
+    m_iconColorProcess->start("cp", QStringList() << "-rfa" << "/usr/share/icons/candy-icons" << "/tmp");
+    m_iconColorProcess->waitForFinished();
+    updateUi();
+    appendColorProcessOutput(" Done\n");
     m_iconColorProcess->setWorkingDirectory("/tmp");
     m_iconColorProcess->start("bash", QStringList() << "/usr/bin/system-installer_colorize-icons.sh" << "candy-icons" << colorizedLogoPixmap->color.name().last(6));
     appendColorProcessOutput("Converting to " + colorizedLogoPixmap->color.name().last(6) + "...");
+    updateUi();
+    ui->previousButton->setEnabled(false);
+    ui->continueButton->setEnabled(false);
+    m_iconColorProcess->waitForFinished();
+    appendColorProcessOutput(" Done\n");
+    appendColorProcessOutput("Generating Color Scheme ...");
+    // TODO: generate color scheme here
+    m_iconColorProcess->start("bash", QStringList() << "/usr/bin/system-installer_colorize-color-scheme.sh" << "/usr/share/color-schemes/System-FF0000.colors" << colorizedLogoPixmap->color.name().last(6));
+    updateUi();
+    m_iconColorProcess->waitForFinished();
+    appendColorProcessOutput(" Done\n");
+    // TODO: apply themes
+    // move /tmp/{s,S}ystem* to /usr
+    // set color-scheme: plasma-apply-colorscheme
+    // set icon theme: sed kdeglobals + kquitapp6 plasmashell + plasmashell
 
+    ui->previousButton->setEnabled(false);
+    ui->continueButton->setEnabled(false);
+}
+
+void MainWindow::updateUi()
+{
+    qApp->processEvents();
 }
 
 void MainWindow::appendColorProcessOutput(QString output)
