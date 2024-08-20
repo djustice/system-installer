@@ -89,6 +89,7 @@ install(TARGETS system-installer
 )
 
 install(FILES scripts/system-installer_colorize-icons.sh
+	      scripts/system-installer_colorize-color-scheme.sh
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
                     GROUP_EXECUTE GROUP_READ
                     WORLD_EXECUTE WORLD_READ

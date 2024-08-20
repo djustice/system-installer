@@ -24,6 +24,7 @@ public Q_SLOTS:
     ActionReply configure(const QVariantMap &args);
     ActionReply bootctl();
     ActionReply unmount(const QVariantMap &args);
+    ActionReply movetousr(const QVariantMap &args);
 
     // void handleProgress(int);
     void unsquashFsDone(int); // ?

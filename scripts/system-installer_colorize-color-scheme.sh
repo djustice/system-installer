@@ -32,7 +32,7 @@ colors=("DecorationFocus=;"
         "ForegroundNegative=,"
         "ForegroundNormal=;"
         "ForegroundVisited=,"
-        "BackgroundNormal=."
+        "BackgroundNormal=_"
         "DecorationFocus=;"
         "ForegroundInactive=,"
         "activeBlend=."
@@ -74,8 +74,14 @@ cat $1 | while read line; do
                 third_b=$(( $(echo $color_rgb | cut -d. -f3) / 3))
                 result=$(echo $line | sed -e "/$name/c\\$name=$third_r,$third_g,$third_b" | cut -d= -f1-2)
             fi
+
+            if [[ $color == *\_ ]]; then
+                result=$(echo $line | sed -e "/$name/c\\$name=0,0,0" | cut -d= -f1-2)
+            fi
         fi
     done
 
     echo $result >> System-$2.colors
 done
+
+sed -i -E "/^Name=/s/.*/Name=System-$2/" System-$2.colors

@@ -121,4 +121,18 @@ void AuthMount::unsquashFsDone(int i)
     qDebug() << "unsquash complete: " << i;
 }
 
+ActionReply AuthMount::movetousr(const QVariantMap& args)
+{
+    QString iconset = args[QStringLiteral("iconset")].toString();
+    QString colorscheme = args[QStringLiteral("colorscheme")].toString();
+
+    QProcess p;
+    p.execute(QStringLiteral("cp"), QStringList() << "/tmp/" + iconset << "/usr/share/icons");
+    p.waitForFinished();
+    p.execute(QStringLiteral("cp"), QStringList() << "/tmp/" + colorscheme << "/usr/share/color-schemes");
+
+    return ActionReply::SuccessReply();
+}
+
+
 KAUTH_HELPER_MAIN("org.kde.systeminstaller", AuthMount)

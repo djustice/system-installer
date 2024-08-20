@@ -21,3 +21,10 @@ Name=Install Bootloader
 Description=System Installer is attempting to install a bootloader.
 Policy=yes
 Persistence=session
+
+[org.kde.systeminstaller.movetousr]
+Name=Move Data
+Description=System Installer is attempting to move data into /usr
+Policy=yes
+Persistence=session
+
