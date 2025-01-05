@@ -1,10 +1,5 @@
 #include "mainwindow.h"
 
-#include <KAuth/Action>
-#include <KAuth/ExecuteJob>
-
-using namespace KAuth;
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -12,8 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->previousButton->setVisible(false);
 
-    // TODO: implement kaboutdata and a .desktop file
-    //       to setWindowIcon for wayland.
+    // TODO: add start-here-system.svg to default theme
 
     KLocalizedString::setApplicationDomain(QByteArrayLiteral("system-installer"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("org.kde"));
@@ -208,6 +202,7 @@ void MainWindow::continueButtonClicked()
         ui->previousPageLabel->setText(QStringLiteral("<i>Color</i>"));
         ui->continueButton->setEnabled(false);
         ui->softwarePageButton->setEnabled(true);
+        qDebug() << "Next clicked: current: 4";
         m_currentPage = 4;
 
         validateSoftwarePage();
@@ -216,6 +211,7 @@ void MainWindow::continueButtonClicked()
         ui->previousPageLabel->setText(QStringLiteral("<i>Software</i>"));
         ui->continueButton->setEnabled(false);
         ui->destinationPageButton->setEnabled(true);
+        qDebug() << "Next clicked: current: 5";
         m_currentPage = 5;
 
         QProcess lsblkProc;
@@ -246,7 +242,6 @@ void MainWindow::continueButtonClicked()
         installationHandler->setRootDevice(QStringLiteral("/dev/") + ui->destRootCombo->currentText().split(QStringLiteral(": ")).at(1));
         installationHandler->setBootDevice(QStringLiteral("/dev/") + ui->destBootCombo->currentText().split(QStringLiteral(": ")).at(1));
         installationHandler->init(this);
-        installationHandler->installSystem();
         // todo: review selections and do actual installation here
 
         QTimer *timer = new QTimer(this);
@@ -355,6 +350,9 @@ void MainWindow::preparePartitionsProcessFinished(int exitCode, QProcess::ExitSt
 
 void MainWindow::colorButtonClicked()
 {
+    ui->previousButton->setEnabled(false);
+    ui->continueButton->setEnabled(false);
+
     colorChooser = new ColorChooser();
     colorChooser->setWindowState(Qt::WindowFullScreen);
     colorChooser->m_colorButton = ui->colorButton;
@@ -386,9 +384,6 @@ void MainWindow::generateIconTheme()
     m_iconColorProcess->start("cp", QStringList() << "-rfa" << "/usr/share/icons/candy-icons" << "/tmp");
     m_iconColorProcess->waitForFinished();
     updateUi();
-    m_iconColorProcess->start("cp", QStringList() << "-rfa" << "/usr/share/icons/candy-icons" << "/tmp");
-    m_iconColorProcess->waitForFinished();
-    updateUi();
     appendColorProcessOutput(" Done\n");
     m_iconColorProcess->setWorkingDirectory("/tmp");
     m_iconColorProcess->start("bash", QStringList() << "/usr/bin/system-installer_colorize-icons.sh" << "candy-icons" << colorizedLogoPixmap->color.name().last(6));
@@ -399,7 +394,8 @@ void MainWindow::generateIconTheme()
     m_iconColorProcess->waitForFinished();
     appendColorProcessOutput(" Done\n");
     appendColorProcessOutput("Generating Color Scheme ...");
-    // TODO: generate color scheme here
+
+    // NOTE: not hardcoded, FF0000 is base/default
     m_iconColorProcess->start("bash", QStringList() << "/usr/bin/system-installer_colorize-color-scheme.sh" << "/usr/share/color-schemes/System-FF0000.colors" << colorHex);
     updateUi();
     m_iconColorProcess->waitForFinished();
@@ -421,8 +417,8 @@ void MainWindow::generateIconTheme()
     p.execute("kquitapp6", QStringList() << "plasmashell");
     p.waitForFinished();
     p.startDetached("plasmashell");
-    ui->previousButton->setEnabled(false);
-    ui->continueButton->setEnabled(false);
+    ui->previousButton->setEnabled(true);
+    ui->continueButton->setEnabled(true);
 }
 
 void MainWindow::updateUi()

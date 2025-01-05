@@ -3,11 +3,6 @@
 #include <QStyleFactory>
 #include <QThread>
 
-#include <KAuth/Action>
-#include <KAuth/ExecuteJob>
-
-using namespace KAuth;
-
 InstallationHandler::InstallationHandler()
 {
 
@@ -22,67 +17,83 @@ void InstallationHandler::init(QWidget* parent)
     m_process->setProcessEnvironment(env);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
 
-    QProcess p;
-    p.start(QString::fromUtf8("mkdir"), QStringList() << QString::fromUtf8("/new/root"));
-    p.waitForFinished();
-    p.start(QString::fromUtf8("mkdir"), QStringList() << QString::fromUtf8("/new/root/boot"));
-    p.waitForFinished();
-    p.start(QString::fromUtf8("mkdir"), QStringList() << QString::fromUtf8("/new/swap"));
-    p.waitForFinished();
+    //
+    // MKDIRS
 
-    QVariantMap args;
-    args[QString::fromUtf8("root")] = m_rootDevice;
-    args[QString::fromUtf8("boot")] = m_bootDevice;
-    args[QString::fromUtf8("sfs")] = QString::fromUtf8("/root/x86_64/system.sfs");
+    qDebug() << "mkdir -p /new/root";
 
-    Action mountRootAction(QString::fromUtf8("org.kde.systeminstaller.mount"));
-    mountRootAction.setHelperId(QString::fromUtf8("org.kde.systeminstaller"));
-    mountRootAction.setArguments(args);
-    ExecuteJob *mountRootJob = mountRootAction.execute();
-    qDebug() << "org.kde.systeminstaller.mount: start";
-    mountRootJob->exec();
-    qDebug() << "org.kde.systeminstaller.mount: end";
+    m_process->start(QString("sudo"),
+                     QStringList() << QString("/usr/bin/mkdir") <<
+                     QString("-p") <<
+                     QString("/new/root"));
 
-    Action unsquashAction(QString::fromUtf8("org.kde.systeminstaller.unsquash"));
-    unsquashAction.setHelperId(QString::fromUtf8("org.kde.systeminstaller"));
-    unsquashAction.setArguments(args);
-    unsquashAction.setTimeout(800000);
-    ExecuteJob *unsquashJob = unsquashAction.execute();
-    qDebug() << "org.kde.systeminstaller.unsquash: start";
-    unsquashJob->exec();
-    qDebug() << "org.kde.systeminstaller.unsquash: end";
+    m_process->waitForFinished();
 
-    Action bootctlAction(QString::fromUtf8("org.kde.systeminstaller.bootctl"));
-    bootctlAction.setHelperId(QString::fromUtf8("org.kde.systeminstaller"));
-    bootctlAction.setArguments(args);
-    ExecuteJob *bootctlJob = bootctlAction.execute();
+    qDebug() << "mkdir done";
+
+    //
+    // MOUNT ROOT
+
+    qDebug() << "mount new root" << m_rootDevice << " to /new/root";
+
+    // TODO: move to bootloader install
+    // m_process->start(QString("sudo"),
+    //                  QStringList() << "/usr/bin/mount" <<
+    //                  m_bootDevice <<
+    //                  QString("/new/root/boot"));
+    m_process->waitForFinished();
+    m_process->start(QString("sudo"),
+                     QStringList() << "/usr/bin/mount" <<
+                     m_rootDevice <<
+                     QString("/new/root"));
+    m_process->waitForFinished();
+
+    qDebug() << "mounted";
+
+    //
+    // UNSQUASH TO ROOT
+    // args[QString::fromUtf8("sfs")] = QString::fromUtf8("/root/x86_64/system.sfs");
+
+    qDebug() << "unsquash root start";
+
+    m_process->start(QString("sudo"),
+                     QStringList() << "/usr/bin/unsquashfs" <<
+                     QString("-d") <<
+                     QString("/new/root") <<
+                     QString("-f") <<
+                     QString("/root/x86_64/system.sfs"));
+
+    if (!m_process->waitForStarted()) {
+        qDebug() << "Error starting process:" << m_process->errorString();
+    }
+
+    m_process->waitForFinished();
+    qDebug() << m_process->readAllStandardOutput();
+    qDebug() << m_process->readAllStandardError();
+
+    m_process->waitForFinished();
+
+    qDebug() << "unsquash root end";
+
+    //
+    // INSTALL BOOTLOADER
+
     qDebug() << "org.kde.systeminstaller.bootctl: start";
-    bootctlJob->exec();
+
     qDebug() << "org.kde.systeminstaller.bootctl: end";
 
-    Action unmountRootAction(QString::fromUtf8("org.kde.systeminstaller.unmount"));
-    unmountRootAction.setHelperId(QString::fromUtf8("org.kde.systeminstaller"));
-    unmountRootAction.setArguments(args);
-    ExecuteJob *unmountRootJob = unmountRootAction.execute();
+    //
+    // UNMOUNT FILESYSTEMS
+
     qDebug() << "org.kde.systeminstaller.unmount: start";
-    unmountRootJob->exec();
+
     qDebug() << "org.kde.systeminstaller.unmount: end";
-}
-
-void InstallationHandler::percent(KJob* job, unsigned long val)
-{
-    qDebug() << "perc: " << val;
-}
-
-void InstallationHandler::unsquashResult(KJob *kjob)
-{
-    auto job = qobject_cast<KAuth::ExecuteJob *>(kjob);
-    qDebug() << "unsq res: " << job->error() << job->data();
 }
 
 void InstallationHandler::installSystem()
 {
-    // sqfs located at /root/x86_64/system.sfs
+    // // sqfs located at /root/x86_64/system.sfs
+    //
     // connect(m_process, SIGNAL(readyRead()), SLOT(parseUnsquashfsOutput()));
     // connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(unsquashDone(int)));
     //
@@ -90,8 +101,8 @@ void InstallationHandler::installSystem()
     // arguments << "-f" << "-d" << "/new/root" << QString("/root/x86_64/system.sfs");
     //
     // m_process->start("unsquashfs", arguments);
-
-    /////////
+    //
+    // ///////
     // QVariantMap unsquashArgs;
     // unsquashArgs["device"] = m_bootDevice;
     // unsquashArgs["path"] = "/new/root/boot";
@@ -121,28 +132,6 @@ void InstallationHandler::handleProgress(const QVariantMap &data)
 void InstallationHandler::unsquashDone(int i)
 {
     qDebug() << "unsquashDone: exitcode: " << i;
-}
-
-void InstallationHandler::partitionMounted(KJob* job)
-{
-    if (job->error() == 0) {
-        KIO::SimpleJob *mBootJob = KIO::mount(false,
-                                QByteArray(),
-                                m_bootDevice,
-                                QString::fromUtf8("/new/root/boot"),
-                                KIO::HideProgressInfo);
-        mBootJob->start();
-    }
-}
-
-void InstallationHandler::unmountPartition(QString partition) {
-    KIO::Job *job = KIO::unmount(partition, KIO::HideProgressInfo);
-    connect(job, SIGNAL(result(KJob*)), SLOT(partitionUnmounted(KJob*)));
-}
-
-void InstallationHandler::partitionUnmounted(KJob* job)
-{
-    qDebug() << "partition unmounted";
 }
 
 InstallationHandler::~InstallationHandler()

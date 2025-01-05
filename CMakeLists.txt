@@ -60,9 +60,6 @@ set(PROJECT_SOURCES
     resources.qrc
 )
 
-add_executable(system-installer_authmount kauth/authmount.cpp)
-target_link_libraries(system-installer_authmount KF6::AuthCore)
-
 add_executable(system-installer ${PROJECT_SOURCES})
 target_compile_options(system-installer PRIVATE -Wno-dev)
 
@@ -71,16 +68,11 @@ target_link_libraries(system-installer
     Qt6::Core
     Qt6::Widgets
     Qt6::Network
-    KF6::AuthCore
     KF6::KIOCore
     KF6::I18n
 )
 
 install(PROGRAMS org.kde.system-installer.desktop DESTINATION ${KDE_INSTALL_APPDIR})
-install(TARGETS system-installer_authmount DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
-
-kauth_install_helper_files(system-installer_authmount org.kde.systeminstaller root)
-kauth_install_actions(org.kde.systeminstaller kauth/org.kde.systeminstaller.actions)
 
 install(TARGETS system-installer
     BUNDLE DESTINATION .
@@ -89,9 +81,8 @@ install(TARGETS system-installer
 )
 
 install(FILES scripts/system-installer_colorize-icons.sh
-	      scripts/system-installer_colorize-color-scheme.sh
+              scripts/system-installer_colorize-color-scheme.sh
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
                     GROUP_EXECUTE GROUP_READ
                     WORLD_EXECUTE WORLD_READ
         DESTINATION bin)
-

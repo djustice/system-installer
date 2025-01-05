@@ -9,8 +9,6 @@
 #include <QMap>
 #include <QPointer>
 
-#include <KF6/KAuthCore/KAuth/ActionReply>
-
 #include <KF6/KIOCore/KIO/CopyJob>
 #include <KF6/KIOCore/KIO/SimpleJob>
 #include <KF6/KIOCore/KIO/MkdirJob>
@@ -77,13 +75,9 @@ public:
     QString bootDevice() { return m_bootDevice; }
 
 public Q_SLOTS:
-    void partitionMounted(KJob*);
-    void partitionUnmounted(KJob*);
     void parseUnsquashfsOutput(int);
     void unsquashDone(int);
-    void unsquashResult(KJob *kjob);
     void handleProgress(const QVariantMap&);
-    void percent(KJob*, unsigned long);
 
 private:
     QPointer<QProcess> m_process;
