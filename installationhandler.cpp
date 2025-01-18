@@ -36,11 +36,6 @@ void InstallationHandler::init(QWidget* parent)
 
     qDebug() << "mount new root" << m_rootDevice << " to /new/root";
 
-    // TODO: move to bootloader install
-    // m_process->start(QString("sudo"),
-    //                  QStringList() << "/usr/bin/mount" <<
-    //                  m_bootDevice <<
-    //                  QString("/new/root/boot"));
     m_process->waitForFinished();
     m_process->start(QString("sudo"),
                      QStringList() << "/usr/bin/mount" <<
@@ -52,7 +47,6 @@ void InstallationHandler::init(QWidget* parent)
 
     //
     // UNSQUASH TO ROOT
-    // args[QString::fromUtf8("sfs")] = QString::fromUtf8("/root/x86_64/system.sfs");
 
     qDebug() << "unsquash root start";
 
@@ -78,9 +72,37 @@ void InstallationHandler::init(QWidget* parent)
     //
     // INSTALL BOOTLOADER
 
-    qDebug() << "org.kde.systeminstaller.bootctl: start";
+    qDebug() << "bootloader start";
 
-    qDebug() << "org.kde.systeminstaller.bootctl: end";
+    m_process->start(QString("sudo"),
+                     QStringList() << "/usr/bin/mount" <<
+                     m_bootDevice <<
+                     QString("/new/root/boot"));
+
+    m_process->waitForFinished();
+
+    m_process->start(QString("sudo"),
+                     QStringList() << "/usr/bin/arch-chroot" <<
+                     QString("/new/root") <<
+                     QString("grub-install") <<
+                     QString("--target=x86_64-efi") <<
+                     QString("--efi-directory=").append(QString("/boot")) <<
+                     QString("--bootloader-id=GRUB"));
+
+    m_process->waitForFinished();
+
+    // TODO: test if 'exit' chroot required here.
+
+    m_process->start("sudo",
+                     QStringList() << "/usr/bin/arch-chroot" <<
+                     "/new/root"
+                     "grub-mkconfig" <<
+                     "-o" <<
+                     "/boot/grub/grub.cfg");
+
+    m_process->waitForFinished();
+
+    qDebug() << "bootloader stop";
 
     //
     // UNMOUNT FILESYSTEMS

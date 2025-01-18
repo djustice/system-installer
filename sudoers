@@ -1,4 +1,0 @@
-user ALL=(ALL) NOPASSWD: ALL
-user ALL = (ALL) NOPASSWD: /usr/bin/mkdir
-user ALL = (ALL) NOPASSWD: /usr/bin/mount
-user ALL = (ALL) NOPASSWD: /usr/bin/unsquashfs
