@@ -79,8 +79,22 @@ public Q_SLOTS:
     void unsquashDone(int);
     void handleProgress(const QVariantMap&);
 
+    void initFinished();
+    void mountFinished();
+    void unsquashFinished();
+    void mkinitcpioFinished();
+    void installBootloaderFinished();
+    void unmountFinished();
+
 private:
     QPointer<QProcess> m_process;
+    QProcess *m_initProcess;
+    QProcess *m_mountProcess;
+    QProcess *m_unsquashProcess;
+    QProcess *m_mkinitcpioProcess;
+    QProcess *m_installBootloader;
+    QProcess *m_unmountProcess;
+
     QProcess *m_userProcess;
     QProcess *m_rootUserProcess;
 

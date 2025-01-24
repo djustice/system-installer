@@ -232,6 +232,7 @@ void MainWindow::continueButtonClicked()
             QMessageBox::information(this, QString::fromUtf8("Error"), QString::fromUtf8("Careful... check your installation drive."));
         }
 
+        ui->progressTextLabel->setText("Installing System");
         ui->stackedWidget_2->setCurrentIndex(5);
         ui->previousPageLabel->setText(QStringLiteral("<i>Destination</i>"));
         ui->continueButton->setEnabled(false);
@@ -241,11 +242,9 @@ void MainWindow::continueButtonClicked()
 
         installationHandler->setRootDevice(QStringLiteral("/dev/") + ui->destRootCombo->currentText().split(QStringLiteral(": ")).at(1));
         installationHandler->setBootDevice(QStringLiteral("/dev/") + ui->destBootCombo->currentText().split(QStringLiteral(": ")).at(1));
-        installationHandler->init(this);
-        // todo: review selections and do actual installation here
 
         QTimer *timer = new QTimer(this);
-        timer->setInterval(1000);
+        timer->setInterval(10000);
         connect(timer, &QTimer::timeout, this, [=, this](){
             int value = ui->progressBar->value();
             if (value < ui->progressBar->maximum()) {
@@ -258,6 +257,9 @@ void MainWindow::continueButtonClicked()
             }
         });
         timer->start();
+
+        installationHandler->init(this);
+        // todo: review selections and do actual installation here
     }
 }
 

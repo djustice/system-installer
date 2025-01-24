@@ -2,6 +2,7 @@
 
 #include <QStyleFactory>
 #include <QThread>
+#include <qtimer.h>
 
 InstallationHandler::InstallationHandler()
 {
@@ -11,25 +12,25 @@ InstallationHandler::InstallationHandler()
 void InstallationHandler::init(QWidget* parent)
 {
     this->setParent(parent);
-    m_process = new QProcess(this);
+    m_initProcess = new QProcess(this);
     QProcessEnvironment env;
     env.insert(QString::fromUtf8("LC_ALL"), QString::fromUtf8("C"));
-    m_process->setProcessEnvironment(env);
-    m_process->setProcessChannelMode(QProcess::MergedChannels);
+    m_initProcess->setProcessEnvironment(env);
+    m_initProcess->setProcessChannelMode(QProcess::MergedChannels);
 
     //
     // MKDIRS
 
     qDebug() << "mkdir -p /new/root";
 
-    m_process->start(QString("sudo"),
+    m_initProcess->start(QString("sudo"),
                      QStringList() << QString("/usr/bin/mkdir") <<
                      QString("-p") <<
                      QString("/new/root"));
 
-    m_process->waitForFinished();
+    m_initProcess->waitForFinished();
 
-    qDebug() << "mkdir done";
+    qDebug() << "mkdir done: " << "\n" << m_initProcess->readAll();
 
     //
     // MOUNT ROOT
@@ -44,6 +45,8 @@ void InstallationHandler::init(QWidget* parent)
     m_process->waitForFinished();
 
     qDebug() << "mounted";
+
+    parent->update();
 
     //
     // UNSQUASH TO ROOT
@@ -61,11 +64,10 @@ void InstallationHandler::init(QWidget* parent)
         qDebug() << "Error starting process:" << m_process->errorString();
     }
 
-    m_process->waitForFinished();
-    qDebug() << m_process->readAllStandardOutput();
-    qDebug() << m_process->readAllStandardError();
+    // TODO: setup timers/signals/slots for each process
+    //       so they don't overlap.
 
-    m_process->waitForFinished();
+    m_process->waitForFinished(300000);
 
     qDebug() << "unsquash root end";
 
@@ -91,8 +93,6 @@ void InstallationHandler::init(QWidget* parent)
 
     m_process->waitForFinished();
 
-    // TODO: test if 'exit' chroot required here.
-
     m_process->start("sudo",
                      QStringList() << "/usr/bin/arch-chroot" <<
                      "/new/root"
@@ -105,9 +105,34 @@ void InstallationHandler::init(QWidget* parent)
     qDebug() << "bootloader stop";
 
     //
+    // INITCPIO FILESYSTEMS
+
+    qDebug() << "initcpio start";
+
+    m_process->start("sudo",
+                     QStringList() << "/usr/bin/arch-chroot" <<
+                     "/new/root"
+                     "mkinitcpio" <<
+                     "-P");
+
+    m_process->waitForFinished();
+
+    qDebug() << "initcpio end";
+
+    //
     // UNMOUNT FILESYSTEMS
 
     qDebug() << "org.kde.systeminstaller.unmount: start";
+
+    m_process->start("sudo",
+                     QStringList() << "/usr/bin/umount" <<
+                     "/new/root/boot");
+    m_process->waitForFinished();
+    m_process->start("sudo",
+                     QStringList() << "/usr/bin/umount" <<
+                     "/new/root");
+    m_process->waitForFinished();
+
 
     qDebug() << "org.kde.systeminstaller.unmount: end";
 }
@@ -155,6 +180,48 @@ void InstallationHandler::unsquashDone(int i)
 {
     qDebug() << "unsquashDone: exitcode: " << i;
 }
+
+void InstallationHandler::initFinished()
+{
+
+}
+
+void InstallationHandler::mountFinished()
+{
+
+}
+
+void InstallationHandler::copyFiles()
+{
+
+}
+
+void InstallationHandler::unsquashFinished()
+{
+
+}
+
+void InstallationHandler::installBootloaderFinished()
+{
+
+}
+
+void InstallationHandler::mkinitcpioFinished()
+{
+
+}
+
+void InstallationHandler::setUpUsers(QStringList)
+{
+
+}
+
+void InstallationHandler::unmountFinished()
+{
+
+}
+
+
 
 InstallationHandler::~InstallationHandler()
 {
