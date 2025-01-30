@@ -59,6 +59,8 @@ set(PROJECT_SOURCES
     installationhandler.cpp
     install/mountroot.h
     install/mountroot.cpp
+    install/unsquash.h
+    install/unsquash.cpp
     resources.qrc
 )
 

@@ -13,59 +13,59 @@ MountRoot::~MountRoot()
 
 void MountRoot::MkDir()
 {
-    QProcessEnvironment env;
-    env.insert(QString::fromUtf8("LC_ALL"), QString::fromUtf8("C"));
-    setProcessEnvironment(env);
-    setProcessChannelMode(QProcess::MergedChannels);
+      QProcessEnvironment env;
+      env.insert(QString::fromUtf8("LC_ALL"), QString::fromUtf8("C"));
+      setProcessEnvironment(env);
+      setProcessChannelMode(QProcess::MergedChannels);
 
-    connect(this, SIGNAL(readyReadStandardError()), this, SLOT(failedMkdir()));
+      connect(this, SIGNAL(readyReadStandardError()), this, SLOT(failedMkdir()));
 
     //
     // MKDIRS
 
-    qDebug() << "mkdir -p /new/root";
+      qDebug() << "mkdir -p /new/root";
 
-    start(QString("sudo"),
-          QStringList() << QString("/usr/bin/mkdir") <<
-          QString("-p") <<
-          QString("/new/root"));
+      start(QString("sudo"),
+            QStringList() << QString("/usr/bin/mkdir") <<
+            QString("-p") <<
+            QString("/new/root"));
 
-    waitForFinished(-1);
+      waitForFinished(-1);
 
-    qDebug() << "mkdir done: " << "\n" << readAll();
+      qDebug() << "mkdir done: " << "\n" << readAll();
 }
 
 void MountRoot::failedMkdir()
 {
-    qDebug() << "mkdir failed: " << "\n" << readAll();
+      qDebug() << "mkdir failed: " << "\n" << readAll();
 }
 
 void MountRoot::Mount()
 {
-    disconnect(this, SIGNAL(readyReadStandardError()), this, SLOT(failedMkdir()));
+      disconnect(this, SIGNAL(readyReadStandardError()), this, SLOT(failedMkdir()));
 
-    connect(this, SIGNAL(readyReadStandardError()), this, SLOT(failedMount()));
+      connect(this, SIGNAL(readyReadStandardError()), this, SLOT(failedMount()));
 
-    //
-    // MOUNT ROOT
+      //
+      // MOUNT ROOT
 
-    qDebug() << "mount new root" << m_rootDevice << " to /new/root";
+      qDebug() << "mount new root" << m_rootDevice << " to /new/root";
 
-    waitForFinished();
+      waitForFinished();
 
-    start(QString("sudo"),
-          QStringList() << "/usr/bin/mount" <<
-          m_rootDevice <<
-          QString("/new/root"));
+      start(QString("sudo"),
+            QStringList() << "/usr/bin/mount" <<
+            m_rootDevice <<
+            QString("/new/root"));
 
-    waitForFinished(-1);
+      waitForFinished(-1);
 
-    qDebug() << "mounted";
+      qDebug() << "mounted";
 }
 
 void MountRoot::failedMount()
 {
-    qDebug() << "mount failed: " << "\n" << readAll();
+      qDebug() << "mount failed: " << "\n" << readAll();
 }
 
 bool MountRoot::open(QIODeviceBase::OpenMode mode)

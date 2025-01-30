@@ -17,64 +17,16 @@ void InstallationHandler::init(QWidget* parent)
     env.insert(QString::fromUtf8("LC_ALL"), QString::fromUtf8("C"));
     m_initProcess->setProcessEnvironment(env);
     m_initProcess->setProcessChannelMode(QProcess::MergedChannels);
-/*
-    //
-    // MKDIRS
-
-    qDebug() << "mkdir -p /new/root";
-
-    m_initProcess->start(QString("sudo"),
-                     QStringList() << QString("/usr/bin/mkdir") <<
-                     QString("-p") <<
-                     QString("/new/root"));
-
-    m_initProcess->waitForFinished();
-
-    qDebug() << "mkdir done: " << "\n" << m_initProcess->readAll();
-
-    //
-    // MOUNT ROOT
-
-    qDebug() << "mount new root" << m_rootDevice << " to /new/root";
-
-    m_process->waitForFinished();
-    m_process->start(QString("sudo"),
-                     QStringList() << "/usr/bin/mount" <<
-                     m_rootDevice <<
-                     QString("/new/root"));
-    m_process->waitForFinished();
-
-    qDebug() << "mounted";*/
 
     MountRoot *mountRoot = new MountRoot(this);
     mountRoot->m_rootDevice = m_rootDevice;
     mountRoot->MkDir();
     mountRoot->Mount();
 
+    UnsquashRoot *unsquashRoot = new UnsquashRoot(this);
+    unsquashRoot->Unsquash();
+
 /*
-    //
-    // UNSQUASH TO ROOT
-
-    qDebug() << "unsquash root start";
-
-    m_process->start(QString("sudo"),
-                     QStringList() << "/usr/bin/unsquashfs" <<
-                     QString("-d") <<
-                     QString("/new/root") <<
-                     QString("-f") <<
-                     QString("/root/x86_64/system.sfs"));
-
-    if (!m_process->waitForStarted()) {
-        qDebug() << "Error starting process:" << m_process->errorString();
-    }
-
-    // TODO: setup timers/signals/slots for each process
-    //       so they don't overlap.
-
-    m_process->waitForFinished(300000);
-
-    qDebug() << "unsquash root end";
-
     //
     // INSTALL BOOTLOADER
 

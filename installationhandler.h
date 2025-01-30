@@ -14,6 +14,7 @@
 #include <KF6/KIOCore/KIO/MkdirJob>
 
 #include <install/mountroot.h>
+#include <install/unsquash.h>
 
 struct UserAccountData {
     QString login;
