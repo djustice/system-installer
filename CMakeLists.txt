@@ -57,6 +57,8 @@ set(PROJECT_SOURCES
     colorchooser.ui
     installationhandler.h
     installationhandler.cpp
+    install/mountroot.h
+    install/mountroot.cpp
     resources.qrc
 )
 

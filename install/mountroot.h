@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include <QProcess>
+#include <QTimer>
 
 
 class MountRoot : public QProcess
@@ -12,10 +13,12 @@ class MountRoot : public QProcess
 
 public:
 
-    MountRoot();
+    MountRoot(QObject *parent);
     ~MountRoot();
 
-    void MountRootInit();
+    void MkDir();
+    void Mount();
+
     bool open(QIODeviceBase::OpenMode mode) override;
     bool waitForReadyRead(int msecs) override;
     bool waitForBytesWritten(int msecs) override;
@@ -24,10 +27,15 @@ public:
 
     QString m_rootDevice;
 
-protected:
+public slots:
 
-    qint64 readData(char* data, qint64 maxlen) override;
-    qint64 writeData(const char* data, qint64 len) override;
+    void failedMkdir();
+    void failedMount();
+
+// protected:
+//
+//     qint64 readData(char* data, qint64 maxlen) override;
+//     qint64 writeData(const char* data, qint64 len) override;
 
 };
 

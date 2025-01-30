@@ -2,7 +2,7 @@
 
 #include <QStyleFactory>
 #include <QThread>
-#include <qtimer.h>
+#include <QTimer>
 
 InstallationHandler::InstallationHandler()
 {
@@ -17,7 +17,7 @@ void InstallationHandler::init(QWidget* parent)
     env.insert(QString::fromUtf8("LC_ALL"), QString::fromUtf8("C"));
     m_initProcess->setProcessEnvironment(env);
     m_initProcess->setProcessChannelMode(QProcess::MergedChannels);
-
+/*
     //
     // MKDIRS
 
@@ -44,10 +44,14 @@ void InstallationHandler::init(QWidget* parent)
                      QString("/new/root"));
     m_process->waitForFinished();
 
-    qDebug() << "mounted";
+    qDebug() << "mounted";*/
 
-    parent->update();
+    MountRoot *mountRoot = new MountRoot(this);
+    mountRoot->m_rootDevice = m_rootDevice;
+    mountRoot->MkDir();
+    mountRoot->Mount();
 
+/*
     //
     // UNSQUASH TO ROOT
 
@@ -134,7 +138,7 @@ void InstallationHandler::init(QWidget* parent)
     m_process->waitForFinished();
 
 
-    qDebug() << "org.kde.systeminstaller.unmount: end";
+    qDebug() << "org.kde.systeminstaller.unmount: end";*/
 }
 
 void InstallationHandler::installSystem()

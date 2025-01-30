@@ -13,6 +13,8 @@
 #include <KF6/KIOCore/KIO/SimpleJob>
 #include <KF6/KIOCore/KIO/MkdirJob>
 
+#include <install/mountroot.h>
+
 struct UserAccountData {
     QString login;
     QString password;
