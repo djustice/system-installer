@@ -303,7 +303,7 @@ void MainWindow::quitButtonClicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->configurationPage);
     ui->stackedWidget_2->setCurrentIndex(1);
-    m_currentPage = 2;
+    m_currentPage = 4;
     continueButtonClicked();
 //    this->close();
 }

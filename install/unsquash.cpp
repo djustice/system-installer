@@ -44,9 +44,11 @@ void UnsquashRoot::Unsquash()
 
 void UnsquashRoot::printProgress()
 {
-      qDebug() << "unsquash: " << readAll();
+      QByteArray output = readAll();
+      if (output.endsWith("%")) {
+            qDebug() << "unsquash: " << output.last(3);
+      }
 }
-
 
 void UnsquashRoot::failedUnsquash()
 {
