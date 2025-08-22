@@ -1,5 +1,4 @@
 #include "mountboot.h"
-#include <qobjectdefs.h>
 
 MountBoot::MountBoot(QObject *parent)
 {
@@ -20,10 +19,7 @@ void MountBoot::MkDir()
 
       connect(this, SIGNAL(readyReadStandardError()), this, SLOT(failedMkdir()));
 
-    //
-    // MKDIRS
-
-      qDebug() << "mkdir -p /new/boot";
+      qDebug() << " :: mkdir -p /new/boot";
 
       start(QString("sudo"),
             QStringList() << QString("/usr/bin/mkdir") <<
@@ -32,40 +28,35 @@ void MountBoot::MkDir()
 
       waitForFinished(-1);
 
-      qDebug() << "mkdir done: " << "\n" << readAll();
+      qDebug() << " :: mkdir done: " << "\n" << readAll();
 }
 
 void MountBoot::failedMkdir()
 {
-      qDebug() << "mkdir failed: " << "\n" << readAll();
+      qDebug() << " :: mkdir failed: " << "\n" << readAll();
 }
 
 void MountBoot::Mount()
 {
       disconnect(this, SIGNAL(readyReadStandardError()), this, SLOT(failedMkdir()));
-
       connect(this, SIGNAL(readyReadStandardError()), this, SLOT(failedMount()));
 
-      //
-      // MOUNT BOOT
-
-      qDebug() << "mount new boot" << m_rootDevice << " to /new/root/boot";
+      qDebug() << " :: mount new boot" << m_bootDevice << " to /new/root/boot";
 
       waitForFinished();
 
-      start(QString("sudo"),
-            QStringList() << "/usr/bin/mount" <<
-            m_rootDevice <<
-            QString("/new/root/boot"));
+      start("sudo", QStringList() << "/usr/bin/mount" <<
+                                     m_bootDevice <<
+                                     "/new/root/boot");
 
       waitForFinished(-1);
 
-      qDebug() << "mounted";
+      qDebug() << " :: done";
 }
 
 void MountBoot::failedMount()
 {
-      qDebug() << "mount failed: " << "\n" << readAll();
+      qDebug() << " !! mount failed: " << "\n" << readAll();
 }
 
 bool MountBoot::open(QIODeviceBase::OpenMode mode)

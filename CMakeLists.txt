@@ -57,6 +57,8 @@ set(PROJECT_SOURCES
     colorchooser.ui
     installationhandler.h
     installationhandler.cpp
+    install/configurebootloader.h
+    install/configurebootloader.cpp
     install/mountboot.h
     install/mountboot.cpp
     install/mountroot.h

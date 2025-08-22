@@ -10,30 +10,30 @@ MainWindow::MainWindow(QWidget *parent)
     // TODO: add start-here-system.svg to default theme
 
     KLocalizedString::setApplicationDomain(QByteArrayLiteral("system-installer"));
-    QCoreApplication::setOrganizationDomain(QStringLiteral("org.kde"));
+    QCoreApplication::setOrganizationDomain("org.kde");
 
-    KAboutData aboutData(QStringLiteral("org.kde.system-installer"),
-                         QStringLiteral("System Installer"),
-                         QStringLiteral("0.0.1"),
-                         QStringLiteral("Installs System"),
+    KAboutData aboutData("org.kde.system-installer",
+                         "System Installer",
+                         "0.0.1",
+                         "Installs System",
                          KAboutLicense::GPL_V3,
-                         QStringLiteral("(ↄ) 2024"),
-                         QStringLiteral(""),
-                         QStringLiteral("https://system-linux.com"),
-                         QStringLiteral("djustice@system-linux.com"));
+                         "(ↄ) 2024",
+                         "",
+                         "https://system-linux.com",
+                         "djustice@system-linux.com");
 
-    aboutData.addAuthor(QStringLiteral("Drake Justice"),
-                        QStringLiteral("Developer"),
-                        QStringLiteral("djustice@system-linux.com"),
-                        QStringLiteral("https://system-linux.com"),
-                        QStringLiteral("djustice"));
+    aboutData.addAuthor("Drake Justice",
+                        "Developer",
+                        "djustice@system-linux.com",
+                        "https://system-linux.com",
+                        "djustice");
 
     KAboutData::setApplicationData(aboutData);
 
-    QGuiApplication::setDesktopFileName(QStringLiteral("org.kde.system-installer"));
-    QGuiApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("start-here-system")));
+    QGuiApplication::setDesktopFileName("org.kde.system-installer");
+    QGuiApplication::setWindowIcon(QIcon::fromTheme("start-here-system"));
 
-    QFile f_timeZones(QStringLiteral(":/data/data/timezones"));
+    QFile f_timeZones(":/data/data/timezones");
 
     if (!f_timeZones.open(QIODevice::ReadOnly))
         qDebug() << f_timeZones.errorString();
@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     while (!stream_tz.atEnd()) {
         QString line(stream_tz.readLine());
-        QStringList split = line.split(QStringLiteral(":"));
+        QStringList split = line.split(":");
         ui->timeZoneListWidget->addItem(split.at(0));
         m_timeZones << line;
     }
@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->timeZoneListWidget->setCurrentRow(0);
     f_timeZones.close();
 
-    QFile f_langPacks(QStringLiteral(":/data/data/langpacks"));
+    QFile f_langPacks(":/data/data/langpacks");
 
     if (!f_langPacks.open(QIODevice::ReadOnly))
         qDebug() << f_langPacks.errorString();
@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     while (!stream_lp.atEnd()) {
         QString line(stream_lp.readLine());
-        QStringList split = line.split(QStringLiteral(":"));
+        QStringList split = line.split(":");
         ui->langPackListWidget->addItem(split.at(1));
         m_langPacks << line;
     }
@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     setMouseTracking(true);
 
-    ui->frame->setStyleSheet(QStringLiteral("background-color: black;"));
+    ui->frame->setStyleSheet("background-color: black;");
 
     colorizedLogoPixmap = new ColorizedPixmap(this);
     colorizedLogoPixmap->setFixedSize(666, 100);
@@ -115,7 +115,7 @@ void MainWindow::continueButtonClicked()
     if (m_currentPage == 0) {
         ui->networkCheckButton->setVisible(false);
         ui->stackedWidget->setCurrentWidget(ui->configurationPage);
-        ui->previousPageLabel->setText(QStringLiteral("<i>Time Zone, Language & Keyboard</i>"));
+        ui->previousPageLabel->setText("<i>Time Zone, Language & Keyboard</i>");
         ui->previousPageLabel->setVisible(true);
         ui->previousButton->setVisible(true);
         ui->previousButton->repaint();
@@ -127,7 +127,8 @@ void MainWindow::continueButtonClicked()
         ui->networkStatusProgress->setValue(33);
 
         QProcess *p = new QProcess;
-        p->start(QStringLiteral("nmcli"), QStringList() << QStringLiteral("dev") << QStringLiteral("wifi"));
+        p->start("nmcli", QStringList() << "dev"
+                                        << "wifi");
 
         if (!p->waitForStarted()) {
 
@@ -143,31 +144,31 @@ void MainWindow::continueButtonClicked()
         ui->previousButton->setEnabled(true);
         ui->previousButton->repaint();
 
-        QString out = QString::fromUtf8(p->readAllStandardOutput());
+        QString out = p->readAllStandardOutput();
 
         bool connected = false;
-        QString networkName = QStringLiteral("");
-        if (out.contains(QStringLiteral("\n")))
+        QString networkName = "";
+        if (out.contains("\n"))
         {
-            for (QString l : out.split(QStringLiteral("\n"))) {
+            for (QString l : out.split("\n")) {
                 qDebug () << l;
-                if (l.contains(QStringLiteral("*"))) {
+                if (l.contains("*")) {
                     connected = true;
-                    l.replace(QStringLiteral("  "), QStringLiteral(" "));
-                    networkName = l.split(QStringLiteral(" ")).at(5);
+                    l.replace("  ", " ");
+                    networkName = l.split(" ").at(5);
                 }
             }
         }
 
         if (connected) {
-            ui->networkStatusLabel->setText(QStringLiteral("Network found: ") + networkName);
+            ui->networkStatusLabel->setText("Network found: " + networkName);
             ui->networkStatusLabel->setVisible(false);
             ui->networkStatusProgress->setValue(100);
             ui->networkStatusProgress->setVisible(false);
             ui->networkCheckButton->setVisible(false);
             ui->hostnameLine->setFocus();
         } else {
-            ui->networkStatusLabel->setText(QStringLiteral("No network found."));
+            ui->networkStatusLabel->setText("No network found.");
             ui->networkStatusProgress->setValue(0);
             ui->networkCheckButton->setVisible(true);
 
@@ -179,7 +180,7 @@ void MainWindow::continueButtonClicked()
 
     } else if (m_currentPage == 1) {
         ui->stackedWidget_2->setCurrentIndex(1);
-        ui->previousPageLabel->setText(QStringLiteral("<i>Network Configuration</i>"));
+        ui->previousPageLabel->setText("<i>Network Configuration</i>");
         ui->continueButton->setEnabled(false);
         ui->userPageButton->setEnabled(true);
         ui->userDisplayNameLine->setFocus();
@@ -193,13 +194,13 @@ void MainWindow::continueButtonClicked()
 
     } else if (m_currentPage == 2) {
         ui->stackedWidget_2->setCurrentIndex(2);
-        ui->previousPageLabel->setText(QStringLiteral("<i>User Account</i>"));
+        ui->previousPageLabel->setText("<i>User Account</i>");
         ui->colorPageButton->setEnabled(true);
         m_currentPage = 3;
 
     } else if (m_currentPage == 3) {
         ui->stackedWidget_2->setCurrentIndex(3);
-        ui->previousPageLabel->setText(QStringLiteral("<i>Color</i>"));
+        ui->previousPageLabel->setText("<i>Color</i>");
         ui->continueButton->setEnabled(false);
         ui->softwarePageButton->setEnabled(true);
         qDebug() << "Next clicked: current: 4";
@@ -208,40 +209,41 @@ void MainWindow::continueButtonClicked()
         validateSoftwarePage();
     } else if (m_currentPage == 4) {
         ui->stackedWidget_2->setCurrentIndex(4);
-        ui->previousPageLabel->setText(QStringLiteral("<i>Software</i>"));
+        ui->previousPageLabel->setText("<i>Software</i>");
         ui->continueButton->setEnabled(false);
         ui->destinationPageButton->setEnabled(true);
         qDebug() << "Next clicked: current: 5";
         m_currentPage = 5;
 
         QProcess lsblkProc;
-        lsblkProc.start(QStringLiteral("lsblk"), QStringList());
+        lsblkProc.start("lsblk", QStringList());
         lsblkProc.waitForStarted();
         lsblkProc.waitForFinished();
-        m_lsblkOutput = QString::fromUtf8(lsblkProc.readAllStandardOutput());
+        m_lsblkOutput = lsblkProc.readAllStandardOutput();
         for (QString line : m_lsblkOutput.split(QChar::fromLatin1('\n'))) {
-            if (line.contains(QStringLiteral("disk"))) {
-                QString deviceItem = line.simplified().split(QStringLiteral(" ")).at(0) + QStringLiteral(" (") + line.simplified().split(QStringLiteral(" ")).at(3) + QStringLiteral(")");
-                ui->destDriveCombo->addItem(QStringLiteral("/dev/") + deviceItem);
+            if (line.contains("disk")) {
+                QString deviceItem = line.simplified().split(" ").at(0) + " (" + line.simplified().split(" ").at(3) + ")";
+                ui->destDriveCombo->addItem("/dev/" + deviceItem);
             }
         }
         ui->continueButton->setEnabled(true);
     } else if (m_currentPage == 5) {
-        if (ui->destDriveCombo->currentText().contains(QStringLiteral("1.8T")) || ui->destDriveCombo->currentText().contains(QStringLiteral("476.9G"))) {
+        if (ui->destDriveCombo->currentText().contains("1.8T") || ui->destDriveCombo->currentText().contains("476.9G")) {
             qDebug() << "WRONG DRIVE";
-            QMessageBox::information(this, QString::fromUtf8("Error"), QString::fromUtf8("Careful... check your installation drive."));
+            QMessageBox::information(this, "Error", "Careful... check your installation drive.");
         }
 
         ui->progressTextLabel->setText("Installing System");
         ui->stackedWidget_2->setCurrentIndex(5);
-        ui->previousPageLabel->setText(QStringLiteral("<i>Destination</i>"));
+        ui->previousPageLabel->setText("<i>Destination</i>");
         ui->continueButton->setEnabled(false);
         ui->progressBar->setValue(0);
         ui->progressBar->setRange(0, 200);
         m_currentPage = 5;
 
-        installationHandler->setRootDevice(QStringLiteral("/dev/") + ui->destRootCombo->currentText().split(QStringLiteral(": ")).at(1));
-        installationHandler->setBootDevice(QStringLiteral("/dev/") + ui->destBootCombo->currentText().split(QStringLiteral(": ")).at(1));
+        installationHandler->setRootDevice("/dev/" + ui->destRootCombo->currentText().split(": ").at(1));
+        installationHandler->setBootDevice("/dev/" + ui->destBootCombo->currentText().split(": ").at(1));
+        installationHandler->setProgressLabel(ui->progressTextLabel);
 
         QTimer *timer = new QTimer(this);
         timer->setInterval(10000);
@@ -273,24 +275,24 @@ void MainWindow::previousButtonClicked()
         ui->continueButton->setEnabled(true);
     } else if (m_currentPage == 2) {
         m_currentPage = 1;
-        ui->previousPageLabel->setText(QStringLiteral("<i>Time Zone, Language & Keyboard</i>"));
+        ui->previousPageLabel->setText("<i>Time Zone, Language & Keyboard</i>");
         ui->stackedWidget->setCurrentIndex(1);
         ui->stackedWidget_2->setCurrentIndex(0);
         validateNetworkPage();
     } else if (m_currentPage == 3) {
         m_currentPage = 2;
-        ui->previousPageLabel->setText(QStringLiteral("<i>Network Configuration</i>"));
+        ui->previousPageLabel->setText("<i>Network Configuration</i>");
         ui->stackedWidget->setCurrentIndex(1);
         ui->stackedWidget_2->setCurrentIndex(1);
         validateUserPage();
     } else if (m_currentPage == 4) {
         m_currentPage = 3;
-        ui->previousPageLabel->setText(QStringLiteral("<i>User Account</i>"));
+        ui->previousPageLabel->setText("<i>User Account</i>");
         ui->stackedWidget->setCurrentIndex(1);
         ui->stackedWidget_2->setCurrentIndex(2);
     } else if (m_currentPage == 5) {
         m_currentPage = 4;
-        ui->previousPageLabel->setText(QStringLiteral("<i>Color</i>"));
+        ui->previousPageLabel->setText("<i>Color</i>");
         ui->stackedWidget->setCurrentIndex(1);
         ui->stackedWidget_2->setCurrentIndex(3);
         validateSoftwarePage();
@@ -313,12 +315,12 @@ void MainWindow::keymapClicked()
     localeMenu = new QMenu(this);
 
     QString currentTimeZoneData = m_timeZones.at(ui->timeZoneListWidget->currentRow());
-    QStringList locales = currentTimeZoneData.split(QStringLiteral(":")).at(1).split(QStringLiteral(","));
+    QStringList locales = currentTimeZoneData.split(":").at(1).split(",");
     QStringListIterator i(locales);
     while (i.hasNext()) {
         QString locale = i.next();
 
-        if (locale.contains(QStringLiteral("."))) {
+        if (locale.contains(".")) {
             QAction *act = new QAction(this);
             act->setText(locale);
             act->setData(locale);
@@ -331,15 +333,13 @@ void MainWindow::keymapClicked()
     connect(localeMenu, &QMenu::triggered, [this] (QAction* a) {
         ui->keymapButton->setText(a->data().toString());
     });
-
-    // ui->keymapButton->setText(currentLangPackData.split(QStringLiteral(":")).at(0));
 }
 
 void MainWindow::preparePartitionsButtonClicked()
 {
     QProcess *p = new QProcess(this);
     connect(p, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(preparePartitionsProcessFinished(int, QProcess::ExitStatus)));
-    p->startDetached(QStringLiteral("partitionmanager"), QStringList());
+    p->startDetached("partitionmanager"), QStringList();
 }
 
 void MainWindow::preparePartitionsProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -380,15 +380,20 @@ void MainWindow::generateIconTheme()
     m_iconColorProcess = new QProcess();
     m_iconColorProcess->moveToThread(m_colorProcessThread);
     updateUi();
-    m_iconColorProcess->start("rm", QStringList() << "-rf" << "/tmp/candy-icons");
+    m_iconColorProcess->start("rm", QStringList() << "-rf"
+                                                  << "/tmp/candy-icons");
     appendColorProcessOutput("Creating new icon theme...");
     m_iconColorProcess->waitForFinished();
-    m_iconColorProcess->start("cp", QStringList() << "-rfa" << "/usr/share/icons/candy-icons" << "/tmp");
+    m_iconColorProcess->start("cp", QStringList() << "-rfa"
+                                                  << "/usr/share/icons/candy-icons"
+                                                  << "/tmp");
     m_iconColorProcess->waitForFinished();
     updateUi();
     appendColorProcessOutput(" Done\n");
     m_iconColorProcess->setWorkingDirectory("/tmp");
-    m_iconColorProcess->start("bash", QStringList() << "/usr/bin/system-installer_colorize-icons.sh" << "candy-icons" << colorizedLogoPixmap->color.name().last(6));
+    m_iconColorProcess->start("bash", QStringList() << "/usr/bin/system-installer_colorize-icons.sh"
+                                                    << "candy-icons"
+                                                    << colorizedLogoPixmap->color.name().last(6));
     appendColorProcessOutput("Converting to " + colorHex + "...");
     updateUi();
     ui->previousButton->setEnabled(false);
@@ -398,23 +403,32 @@ void MainWindow::generateIconTheme()
     appendColorProcessOutput("Generating Color Scheme ...");
 
     // NOTE: not hardcoded, FF0000 is base/default
-    m_iconColorProcess->start("bash", QStringList() << "/usr/bin/system-installer_colorize-color-scheme.sh" << "/usr/share/color-schemes/System-FF0000.colors" << colorHex);
+    m_iconColorProcess->start("bash", QStringList() << "/usr/bin/system-installer_colorize-color-scheme.sh"
+                                                    << "/usr/share/color-schemes/System-FF0000.colors"
+                                                    << colorHex);
     updateUi();
     m_iconColorProcess->waitForFinished();
     appendColorProcessOutput(" Done\n");
 
     // move /tmp/{s,S}ystem* to /usr
     QProcess p;
-    p.execute("sudo", QStringList() << "mv" << "/tmp/System-" + colorHex + ".colors" << "/usr/share/color-schemes");
+    p.execute("sudo", QStringList() << "mv"
+                                    << "/tmp/System-" + colorHex + ".colors"
+                                    << "/usr/share/color-schemes");
     p.waitForFinished();
-    p.execute("sudo", QStringList() << "mv" << "/tmp/system-candy-icons-" + colorHex << "/usr/share/icons");
+    p.execute("sudo", QStringList() << "mv"
+                                    << "/tmp/system-candy-icons-" + colorHex
+                                    << "/usr/share/icons");
     p.waitForFinished();
     // set color-scheme: plasma-apply-colorscheme
     p.execute("plasma-apply-colorscheme", QStringList() << "/usr/share/color-schemes/System-" + colorHex + ".colors");
     p.waitForBytesWritten();
     p.setWorkingDirectory(QDir::homePath());
     // set icon theme: sed kdeglobals + kquitapp6 plasmashell + plasmashell
-    p.execute("sed", QStringList() << "-i" << "-E" << QString("/^Theme=/s/.*/Theme=system-candy-icons-" + colorHex + "/") << QDir::homePath() + "/.config/kdeglobals");
+    p.execute("sed", QStringList() << "-i"
+                                   << "-E"
+                                   << "/^Theme=/s/.*/Theme=system-candy-icons-" + colorHex + "/"
+                                   << QDir::homePath() + "/.config/kdeglobals");
     p.waitForFinished();
     p.execute("kquitapp6", QStringList() << "plasmashell");
     p.waitForFinished();
@@ -436,39 +450,40 @@ void MainWindow::appendColorProcessOutput(QString output)
 void MainWindow::networkCheckClicked()
 {
     ui->networkCheckButton->setVisible(false);
-    ui->networkStatusLabel->setText(QStringLiteral("Searching for network..."));
+    ui->networkStatusLabel->setText("Searching for network...");
     ui->networkStatusProgress->setValue(33);
 
     QProcess *p = new QProcess;
-    p->start(QStringLiteral("nmcli"), QStringList() << QStringLiteral("dev") << QStringLiteral("wifi"));
+    p->start("nmcli", QStringList() << "dev"
+                                    << "wifi");
     p->waitForStarted();
     ui->networkStatusProgress->setValue(66);
     p->waitForFinished();
     ui->networkStatusProgress->setValue(100);
 
-    QString out = QString::fromUtf8(p->readAllStandardOutput());
+    QString out = p->readAllStandardOutput();
     bool connected = false;
-    QString networkName = QStringLiteral("");
-    if (out.contains(QStringLiteral("\n")))
+    QString networkName = "";
+    if (out.contains("\n"))
     {
-        for (QString l : out.split(QString::fromUtf8("\n"))) {
+        for (QString l : out.split("\n")) {
             qDebug () << l;
-            if (l.contains(QStringLiteral("*"))) {
+            if (l.contains("*")) {
                 connected = true;
-                l.replace(QStringLiteral("  "), QStringLiteral(" "));
-                networkName = l.split(QStringLiteral(" ")).at(5);
+                l.replace("  ", " ");
+                networkName = l.split(" ").at(5);
             }
         }
     }
 
     if (connected) {
-        ui->networkStatusLabel->setText(QStringLiteral("Network found: ") + networkName);
+        ui->networkStatusLabel->setText("Network found: " + networkName);
         ui->networkStatusProgress->setValue(100);
         ui->networkStatusProgress->setVisible(false);
         ui->networkCheckButton->setVisible(false);
         ui->hostnameLine->setFocus();
     } else {
-        ui->networkStatusLabel->setText(QStringLiteral("No network found."));
+        ui->networkStatusLabel->setText("No network found.");
         ui->networkStatusProgress->setValue(0);
         ui->networkCheckButton->setVisible(true);
     }
@@ -478,16 +493,16 @@ void MainWindow::timeZoneClicked()
 {
     QString currentTimeZoneData = m_timeZones.at(ui->timeZoneListWidget->currentRow());
 
-    if (currentTimeZoneData.split(QStringLiteral(":")).count() > 1) {
+    if (currentTimeZoneData.split(":").count() > 1) {
         ui->langPackListWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->langPackListWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-        if (currentTimeZoneData.split(QStringLiteral(":")).at(2).contains(QStringLiteral(","))) {
-            QString lang = currentTimeZoneData.split(QStringLiteral(":")).at(2).split(QStringLiteral(",")).at(0);
+        if (currentTimeZoneData.split(":").at(2).contains(",")) {
+            QString lang = currentTimeZoneData.split(":").at(2).split(",").at(0);
             int row = 0;
             for (QString langPack : m_langPacks)
             {
-                if (lang == langPack.split(QStringLiteral(":")).at(0)) {
+                if (lang == langPack.split(":").at(0)) {
                     ui->langPackListWidget->setCurrentRow(row, QItemSelectionModel::Current);
                     ui->langPackListWidget->setCurrentIndex(ui->langPackListWidget->model()->index(row, 0));
                 }
@@ -496,11 +511,11 @@ void MainWindow::timeZoneClicked()
             }
         }
         else {
-            QString lang = currentTimeZoneData.split(QStringLiteral(":")).at(2).split(QStringLiteral(",")).at(0);
+            QString lang = currentTimeZoneData.split(":").at(2).split(",").at(0);
             int row = 0;
             for (QString langPack : m_langPacks)
             {
-                if (lang == langPack.split(QStringLiteral(":")).at(0)) {
+                if (lang == langPack.split(":").at(0)) {
                     ui->langPackListWidget->setCurrentRow(row);
                     ui->langPackListWidget->setCurrentIndex(ui->langPackListWidget->model()->index(row, 0));
                 }
@@ -511,7 +526,7 @@ void MainWindow::timeZoneClicked()
     }
 
     QDateTime dt = QDateTime::currentDateTime();
-    QString tz = currentTimeZoneData.split(QStringLiteral(":")).at(0);
+    QString tz = currentTimeZoneData.split(":").at(0);
     QByteArray tzBA = tz.toUtf8();
     dt.setTimeZone(QTimeZone(tzBA));
     ui->dateTimeEdit->setDateTime(dt);
@@ -522,17 +537,15 @@ void MainWindow::timeZoneClicked()
 void MainWindow::langPackClicked()
 {
     QString currentLangPackData = m_langPacks.at(ui->langPackListWidget->currentRow());
-    ui->keymapButton->setText(currentLangPackData.split(QStringLiteral(":")).at(0));
+    ui->keymapButton->setText(currentLangPackData.split(":").at(0));
     ui->continueButton->setEnabled(true);
 }
 
 void MainWindow::validateNetworkPage()
 {
     if (ui->hostnameLine->text().length() >= 1) {
-        // if (ui->networkStatusLabel->text().startsWith(QStringLiteral("Network found")) {
-            ui->continueButton->setEnabled(true);
-            ui->hostnameLineValidIcon->setVisible(false);
-        // }
+        ui->continueButton->setEnabled(true);
+        ui->hostnameLineValidIcon->setVisible(false);
     } else {
         ui->hostnameLineValidIcon->setVisible(true);
         ui->continueButton->setEnabled(false);
@@ -576,29 +589,29 @@ void MainWindow::deviceComboTextChanged(QString text)
     QObject::disconnect(ui->destBootCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(destBootComboTextChanged(QString)));
     QObject::disconnect(ui->destSwapCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(destSwapComboTextChanged(QString)));
     ui->destRootCombo->clear();
-    ui->destRootCombo->addItem(QStringLiteral("Select [root] partition..."));
+    ui->destRootCombo->addItem("Select [root] partition...");
     ui->destBootCombo->clear();
-    ui->destBootCombo->addItem(QStringLiteral("Select [boot] partition..."));
+    ui->destBootCombo->addItem("Select [boot] partition...");
     ui->destSwapCombo->clear();
-    ui->destSwapCombo->addItem(QStringLiteral("Select [swap] partition..."));
+    ui->destSwapCombo->addItem("Select [swap] partition...");
 
-    QString deviceName = text.split(QStringLiteral("/")).at(2).split(QStringLiteral(" ")).at(0);
+    QString deviceName = text.split("/").at(2).split(" ").at(0);
     QProcess lsblkProc;
     QStringList args;
-    args << QString(QStringLiteral("/dev/") + deviceName) << QStringLiteral("-o") << QStringLiteral("NAME,SIZE,TYPE,FSTYPE");
-    lsblkProc.start(QStringLiteral("lsblk"), args);
+    args << "/dev/" + deviceName << "-o" << "NAME,SIZE,TYPE,FSTYPE";
+    lsblkProc.start("lsblk", args);
     lsblkProc.waitForStarted();
     lsblkProc.waitForFinished();
-    QString output = QString::fromUtf8(lsblkProc.readAllStandardOutput());
-    for (QString line : output.split(QStringLiteral("\n"))) {
+    QString output = lsblkProc.readAllStandardOutput();
+    for (QString line : output.split("\n")) {
         if (line.contains(deviceName)) {
-            if (line.contains(QStringLiteral("part"))) {
-                QString itemText = line.simplified().split(QStringLiteral("─")).at(1);
-                QStringList itemTextList = QStringList(itemText.split(QStringLiteral(" ")));
+            if (line.contains("part")) {
+                QString itemText = line.simplified().split("─").at(1);
+                QStringList itemTextList = QStringList(itemText.split(" "));
                 if (itemTextList.length() > 3) {
-                    itemText = itemTextList[1] + QStringLiteral(" ") + itemTextList[3].toUpper() + QString::fromUtf8(" Partition at: ") + itemTextList[0];
+                    itemText = itemTextList[1] + " " + itemTextList[3].toUpper() + " Partition at: " + itemTextList[0];
                 } else {
-                    itemText = itemTextList[1] + QString::fromUtf8(" Partition at: ") + itemTextList[0];
+                    itemText = itemTextList[1] + " Partition at: " + itemTextList[0];
                 }
                 ui->destRootCombo->addItem(itemText);
                 ui->destRootCombo->setCurrentIndex(0);
@@ -618,15 +631,15 @@ void MainWindow::deviceComboTextChanged(QString text)
 double MainWindow::convertHumanSizeToBytes(QString text)
 {
     double mb = 0;
-    QString size = text.split(QStringLiteral(" ")).at(0);
-    if (size.contains(QStringLiteral("T"))) {
-        mb = size.split(QStringLiteral("T")).at(0).toDouble() * 1024 * 1024 * 1024;
-    } else if (size.contains(QStringLiteral("G"))) {
-        mb = size.split(QStringLiteral("G")).at(0).toDouble() * 1024 * 1024;
-    } else if (size.contains(QStringLiteral("M"))) {
-        mb = size.split(QStringLiteral("M")).at(0).toDouble() * 1024;
+    QString size = text.split(" ").at(0);
+    if (size.contains("T")) {
+        mb = size.split("T").at(0).toDouble() * 1024 * 1024 * 1024;
+    } else if (size.contains("G")) {
+        mb = size.split("G").at(0).toDouble() * 1024 * 1024;
+    } else if (size.contains("M")) {
+        mb = size.split("M").at(0).toDouble() * 1024;
     } else {
-        mb = size.split(QStringLiteral("K")).at(0).toDouble();
+        mb = size.split("K").at(0).toDouble();
     }
 
     return mb;
@@ -635,12 +648,12 @@ double MainWindow::convertHumanSizeToBytes(QString text)
 void MainWindow::destRootComboTextChanged(QString text)
 {
     if (convertHumanSizeToBytes(text) < 10000000) {
-        QMessageBox::information(this, QString::fromUtf8("[root] size"), QString::fromUtf8("/ must be at least 10GB"));
+        QMessageBox::information(this, "[root] size", "/ must be at least 10GB");
     } else {
-        if (text.split(QStringLiteral(" ")).at(1) == QString::fromUtf8("EXT4")) {
+        if (text.split(" ").at(1) == "EXT4") {
             currentRootPartValid = true;
         } else {
-            QMessageBox::information(this, QString::fromUtf8("[root] filesystem"), QString::fromUtf8("/ must be formatted as EXT4, BTRFS or ZFS"));
+            QMessageBox::information(this, "[root] filesystem", "/ must be formatted as EXT4, BTRFS or ZFS");
             currentRootPartValid = false;
         }
     }
@@ -651,12 +664,12 @@ void MainWindow::destRootComboTextChanged(QString text)
 void MainWindow::destBootComboTextChanged(QString text)
 {
     if (convertHumanSizeToBytes(text) < 100000) {
-        QMessageBox::information(this, QString::fromUtf8("[boot] size"), QString::fromUtf8("/boot must be at least 100MB"));
+        QMessageBox::information(this, "[boot] size", "/boot must be at least 100MB");
     } else {
-        if (text.split(QStringLiteral(" ")).at(1) == QString::fromUtf8("VFAT")) {
+        if (text.split(" ").at(1) == "VFAT") {
             currentBootPartValid = true;
         } else {
-            QMessageBox::information(this, QString::fromUtf8("[boot] filesystem"), QString::fromUtf8("EFI/[boot] must be formatted as FAT32"));
+            QMessageBox::information(this, "[boot] filesystem", "EFI/[boot] must be formatted as FAT32");
             currentBootPartValid = false;
         }
     }
@@ -667,13 +680,13 @@ void MainWindow::destBootComboTextChanged(QString text)
 void MainWindow::destSwapComboTextChanged(QString text)
 {
     if (convertHumanSizeToBytes(text) < 50000) {
-        QMessageBox::information(this, QString::fromUtf8("[swap] size"), QString::fromUtf8("swap must be at least 50MB"));
+        QMessageBox::information(this, "[swap] size", "swap must be at least 50MB");
         currentSwapPartValid = false;
     } else {
-        if (text.split(QStringLiteral(" ")).at(1) == QString::fromUtf8("SWAP")) {
+        if (text.split(" ").at(1) == "SWAP") {
             currentSwapPartValid = true;
         } else {
-            QMessageBox::information(this, QString::fromUtf8("[swap] filesystem"), QString::fromUtf8("[swap] must be formatted as Linux Swap"));
+            QMessageBox::information(this, "[swap] filesystem", "[swap] must be formatted as Linux Swap");
             currentSwapPartValid = false;
         }
     }

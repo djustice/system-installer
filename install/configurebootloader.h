@@ -1,5 +1,5 @@
-#ifndef MOUNTROOT_H
-#define MOUNTROOT_H
+#ifndef CONFIGUREBOOTLOADER_H
+#define CONFIGUREBOOTLOADER_H
 
 #include <QDebug>
 
@@ -7,17 +7,16 @@
 #include <QTimer>
 
 
-class MountRoot : public QProcess
+class ConfigureBootloader : public QProcess
 {
     Q_OBJECT
 
 public:
 
-    MountRoot(QObject *parent);
-    ~MountRoot();
+    ConfigureBootloader(QObject *parent);
+    ~ConfigureBootloader();
 
-    void MkDir();
-    void Mount();
+    void install();
 
     bool open(QIODeviceBase::OpenMode mode) override;
     bool waitForReadyRead(int msecs) override;
@@ -25,12 +24,12 @@ public:
     qint64 bytesToWrite() const override;
     void close() override;
 
+    QString m_bootDevice;
     QString m_rootDevice;
 
 public slots:
 
-    void failedMkdir();
-    void failedMount();
+    void failed();
 
 };
 

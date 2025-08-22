@@ -25,17 +25,12 @@ public:
     qint64 bytesToWrite() const override;
     void close() override;
 
-    QString m_rootDevice;
+    QString m_bootDevice;
 
 public slots:
 
     void failedMkdir();
     void failedMount();
-
-// protected:
-//
-//     qint64 readData(char* data, qint64 maxlen) override;
-//     qint64 writeData(const char* data, qint64 len) override;
 
 };
 

@@ -1,6 +1,5 @@
 #include "unsquash.h"
 
-
 UnsquashRoot::UnsquashRoot(QObject *parent)
 {
       this->setParent(parent);
@@ -21,17 +20,13 @@ void UnsquashRoot::Unsquash()
       connect(this, SIGNAL(readyReadStandardError()), this, SLOT(failedUnsquash()));
       connect(this, SIGNAL(readyReadStandardOutput()), this, SLOT(printProgress()));
 
-      //
-      // UNSQUASH TO ROOT
+      qDebug() << " :: unsquash root start";
 
-      qDebug() << "unsquash root start";
-
-      start(QString("sudo"),
-            QStringList() << "/usr/bin/unsquashfs" <<
-            QString("-d") <<
-            QString("/new/root") <<
-            QString("-f") <<
-            QString("/root/x86_64/system.sfs"));
+      start(QString("sudo"), QStringList() << "/usr/bin/unsquashfs"
+                                           << QString("-d")
+                                           << QString("/new/root")
+                                           << QString("-f")
+                                           << QString("/root/x86_64/system.sfs"));
 
       if (!waitForStarted()) {
             qDebug() << "Error starting process:" << errorString();
@@ -39,7 +34,7 @@ void UnsquashRoot::Unsquash()
 
       waitForFinished(-1);
 
-      qDebug() << "unsquash done: " << "\n" << readAll();
+      qDebug() << " :: unsquash done: " << "\n" << readAll();
 }
 
 void UnsquashRoot::printProgress()
@@ -47,12 +42,18 @@ void UnsquashRoot::printProgress()
       QByteArray output = readAll();
       if (output.endsWith("%")) {
             qDebug() << "unsquash: " << output.last(3);
+            m_progress = output.last(3).replace("%", "");
+            emit updateProgress(m_progress);
       }
+}
+
+QString updateProgress(QString progress) {
+      return progress;
 }
 
 void UnsquashRoot::failedUnsquash()
 {
-      qDebug() << "unsquash failed: " << "\n" << readAll();
+      qDebug() << " :: unsquash failed: " << "\n" << readAll();
 }
 
 bool UnsquashRoot::open(QIODeviceBase::OpenMode mode)

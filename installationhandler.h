@@ -2,17 +2,20 @@
 #define INSTALLATIONHANDLER_H
 
 #include <QDebug>
-#include <QWidget>
-#include <QObject>
-#include <QTime>
-#include <QProcess>
+#include <QLabel>
 #include <QMap>
+#include <QObject>
 #include <QPointer>
+#include <QProcess>
+#include <QTime>
+#include <QWidget>
 
 #include <KF6/KIOCore/KIO/CopyJob>
 #include <KF6/KIOCore/KIO/SimpleJob>
 #include <KF6/KIOCore/KIO/MkdirJob>
 
+#include <install/configurebootloader.h>
+#include <install/mountboot.h>
 #include <install/mountroot.h>
 #include <install/unsquash.h>
 
@@ -77,10 +80,12 @@ public:
     void setBootDevice(const QString& s) { m_bootDevice = s; }
     QString bootDevice() { return m_bootDevice; }
 
+    void setProgressLabel(QLabel* l) { m_progressLabel = l; }
+
 public Q_SLOTS:
     void parseUnsquashfsOutput(int);
     void unsquashDone(int);
-    void handleProgress(const QVariantMap&);
+    void updateProgress(QString);
 
     void initFinished();
     void mountFinished();
@@ -101,6 +106,8 @@ private:
     QProcess *m_userProcess;
     QProcess *m_rootUserProcess;
 
+    QLabel *m_progressLabel;
+
     QStringList m_mtab;
 
     UserAccountData m_userAccountData;
@@ -119,6 +126,7 @@ private:
     QString m_KDELangPack;
     QString m_rootDevice;
     QString m_bootDevice;
+
 };
 
 #endif // INSTALLATIONHANDLER_H

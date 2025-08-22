@@ -1,0 +1,12 @@
+menuentry "System Linux" {
+    insmod part_gpt
+    insmod ext2
+
+    set bootuuid=XXXX
+    set rootuuid=YYYY
+
+    search --no-floppy --fs-uuid --set=boot $bootuuid
+    linux /vmlinuz root=UUID=$rootuuid ro quiet
+    initrd /initrd.img
+}
+

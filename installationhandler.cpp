@@ -19,17 +19,23 @@ void InstallationHandler::init(QWidget* parent)
     m_initProcess->setProcessChannelMode(QProcess::MergedChannels);
 
     MountRoot *mountRoot = new MountRoot(this);
-    mountRoot->m_rootDevice = m_rootDevitce;
+    mountRoot->m_rootDevice = m_rootDevice;
     mountRoot->MkDir();
     mountRoot->Mount();
 
     UnsquashRoot *unsquashRoot = new UnsquashRoot(this);
+    connect(unsquashRoot, SIGNAL(updateProgress(QString)), this, SLOT(updateProgress(QString)));
     unsquashRoot->Unsquash();
 
-    MountBoot *mountBoot = MountBoot(this);
+    MountBoot *mountBoot = new MountBoot(this);
     mountBoot->m_bootDevice = m_bootDevice;
     mountBoot->MkDir();
     mountBoot->Mount();
+
+    ConfigureBootloader *configureBootloader = new ConfigureBootloader(this);
+    configureBootloader->m_bootDevice = m_bootDevice;
+    configureBootloader->m_rootDevice = m_rootDevice;
+    configureBootloader->start();
 
 /*
     //
@@ -132,9 +138,9 @@ void InstallationHandler::parseUnsquashfsOutput(int i)
     qDebug() << i;
 }
 
-void InstallationHandler::handleProgress(const QVariantMap &data)
+void InstallationHandler::updateProgress(QString progress)
 {
-    qDebug() << data;
+    m_progressLabel->setText(progress);
 }
 
 void InstallationHandler::unsquashDone(int i)

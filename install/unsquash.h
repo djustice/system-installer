@@ -25,11 +25,16 @@ public:
     void close() override;
 
     QString m_rootDevice;
+    QString m_progress;
 
 public slots:
 
     void printProgress();
     void failedUnsquash();
+
+signals:
+
+    void updateProgress(QString progress);
 
 };
 
