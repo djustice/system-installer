@@ -19,12 +19,17 @@ void InstallationHandler::init(QWidget* parent)
     m_initProcess->setProcessChannelMode(QProcess::MergedChannels);
 
     MountRoot *mountRoot = new MountRoot(this);
-    mountRoot->m_rootDevice = m_rootDevice;
+    mountRoot->m_rootDevice = m_rootDevitce;
     mountRoot->MkDir();
     mountRoot->Mount();
 
     UnsquashRoot *unsquashRoot = new UnsquashRoot(this);
     unsquashRoot->Unsquash();
+
+    MountBoot *mountBoot = MountBoot(this);
+    mountBoot->m_bootDevice = m_bootDevice;
+    mountBoot->MkDir();
+    mountBoot->Mount();
 
 /*
     //
