@@ -18,24 +18,28 @@ void InstallationHandler::init(QWidget* parent)
     m_initProcess->setProcessEnvironment(env);
     m_initProcess->setProcessChannelMode(QProcess::MergedChannels);
 
-    MountRoot *mountRoot = new MountRoot(this);
-    mountRoot->m_rootDevice = m_rootDevice;
-    mountRoot->MkDir();
-    mountRoot->Mount();
+    m_mountProcess = new MountRoot(this);
+    m_mountProcess->m_rootDevice = m_rootDevice;
+    m_mountProcess->MkDir();
+    m_mountProcess->Mount();
 
-    UnsquashRoot *unsquashRoot = new UnsquashRoot(this);
-    connect(unsquashRoot, SIGNAL(updateProgress(QString)), this, SLOT(updateProgress(QString)));
-    unsquashRoot->Unsquash();
+    m_unsquashProcess = new UnsquashRoot(this);
+    connect(m_unsquashProcess, SIGNAL(updateProgress(QString)),
+               this->parent(), SLOT(updateInstallProgress(QString)));
+    m_unsquashProcess->Unsquash();
 
-    MountBoot *mountBoot = new MountBoot(this);
-    mountBoot->m_bootDevice = m_bootDevice;
-    mountBoot->MkDir();
-    mountBoot->Mount();
+    m_mountBoot = new MountBoot(this);
+    m_mountBoot->m_bootDevice = m_bootDevice;
+    m_mountBoot->MkDir();
+    m_mountBoot->Mount();
 
-    ConfigureBootloader *configureBootloader = new ConfigureBootloader(this);
-    configureBootloader->m_bootDevice = m_bootDevice;
-    configureBootloader->m_rootDevice = m_rootDevice;
-    configureBootloader->start();
+    m_initcpioProcess = new InitCpio(this);
+    m_initcpioProcess->MkInitCpio();
+
+    m_configureBootloader = new ConfigureBootloader(this);
+    m_configureBootloader->m_bootDevice = m_bootDevice;
+    m_configureBootloader->m_rootDevice = m_rootDevice;
+    m_configureBootloader->install();
 
 /*
     //
@@ -140,7 +144,9 @@ void InstallationHandler::parseUnsquashfsOutput(int i)
 
 void InstallationHandler::updateProgress(QString progress)
 {
-    m_progressLabel->setText(progress);
+    qDebug() << " :: update installprogress: " << progress;
+
+    emit updateInstallProgress(progress);
 }
 
 void InstallationHandler::unsquashDone(int i)

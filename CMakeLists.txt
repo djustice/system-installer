@@ -59,6 +59,8 @@ set(PROJECT_SOURCES
     installationhandler.cpp
     install/configurebootloader.h
     install/configurebootloader.cpp
+    install/initcpio.h
+    install/initcpio.cpp
     install/mountboot.h
     install/mountboot.cpp
     install/mountroot.h

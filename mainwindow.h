@@ -81,6 +81,8 @@ public Q_SLOTS:
 
     void updateUi();
 
+    void updateInstallProgress(QString);
+
 private:
     Ui::MainWindow *ui;
     ColorChooser *colorChooser;

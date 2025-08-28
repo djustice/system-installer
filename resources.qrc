@@ -8,5 +8,6 @@
     <qresource prefix="/data">
         <file>data/langpacks</file>
         <file>data/timezones</file>
+        <file>data/40_custom</file>
     </qresource>
 </RCC>

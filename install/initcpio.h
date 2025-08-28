@@ -1,23 +1,22 @@
-#ifndef CONFIGUREBOOTLOADER_H
-#define CONFIGUREBOOTLOADER_H
+#ifndef INITCPIO_H
+#define INITCPIO_H
 
 #include <QDebug>
 
-#include <QFile>
 #include <QProcess>
 #include <QTimer>
 
 
-class ConfigureBootloader : public QProcess
+class InitCpio : public QProcess
 {
     Q_OBJECT
 
 public:
 
-    ConfigureBootloader(QObject *parent);
-    ~ConfigureBootloader();
+    InitCpio(QObject *parent);
+    ~InitCpio();
 
-    void install();
+    void MkInitCpio();
 
     bool open(QIODeviceBase::OpenMode mode) override;
     bool waitForReadyRead(int msecs) override;
@@ -25,15 +24,17 @@ public:
     qint64 bytesToWrite() const override;
     void close() override;
 
-    QString m_bootDevice;
     QString m_rootDevice;
-
-    QStringList m_grubEntry;
+    QString m_bootDevice;
 
 public slots:
 
-    void failed();
+    void failedMkInitCpio();
+
+signals:
+
+    void updateProgress(QString progress);
 
 };
 
-#endif // MOUNTROOT_H
+#endif // INITCPIO_H

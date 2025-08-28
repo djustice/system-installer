@@ -15,6 +15,7 @@
 #include <KF6/KIOCore/KIO/MkdirJob>
 
 #include <install/configurebootloader.h>
+#include <install/initcpio.h>
 #include <install/mountboot.h>
 #include <install/mountroot.h>
 #include <install/unsquash.h>
@@ -94,13 +95,18 @@ public Q_SLOTS:
     void installBootloaderFinished();
     void unmountFinished();
 
+signals:
+
+    void updateInstallProgress(QString);
+
 private:
     QPointer<QProcess> m_process;
     QProcess *m_initProcess;
-    QProcess *m_mountProcess;
-    QProcess *m_unsquashProcess;
-    QProcess *m_mkinitcpioProcess;
-    QProcess *m_installBootloader;
+    MountRoot *m_mountProcess;
+    UnsquashRoot *m_unsquashProcess;
+    InitCpio *m_initcpioProcess;
+    MountBoot *m_mountBoot;
+    ConfigureBootloader *m_configureBootloader;
     QProcess *m_unmountProcess;
 
     QProcess *m_userProcess;

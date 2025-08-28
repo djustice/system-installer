@@ -260,9 +260,18 @@ void MainWindow::continueButtonClicked()
         });
         timer->start();
 
+        connect(installationHandler, SIGNAL(updateInstallProgress(QString)),
+                               this, SLOT(updateInstallProgress(QString)));
+
         installationHandler->init(this);
+
         // todo: review selections and do actual installation here
     }
+}
+
+void MainWindow::updateInstallProgress(QString progress) {
+    ui->progressBar->setValue(progress.replace("%", "").toInt() * 2);
+    qApp->processEvents();
 }
 
 void MainWindow::previousButtonClicked()
