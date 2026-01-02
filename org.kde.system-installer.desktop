@@ -1,10 +1,19 @@
 [Desktop Entry]
-Type=Application
-Exec=system-installer %U
-Icon=start-here-system
-GenericName=System Installer
-Comment=System Installer
-Name=System Installer
-StartupNotify=true
 Categories=KDE;Qt;Filesystem;
+Comment[en_US]=System Installer
+Comment=System Installer
+Exec=system-installer %U
+GenericName[en_US]=System Installer
+GenericName=System Installer
+Icon=preferences-system
 InitialPreference=5
+MimeType=
+Name[en_US]=System Installer
+Name=System Installer
+Path=
+StartupNotify=true
+Terminal=false
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=

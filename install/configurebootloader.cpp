@@ -10,6 +10,16 @@ ConfigureBootloader::~ConfigureBootloader()
 
 }
 
+void ConfigureBootloader::setBootDevice(const QString &device)
+{
+    m_bootDevice = device;
+}
+
+void ConfigureBootloader::setRootDevice(const QString &device)
+{
+    m_rootDevice = device;
+}
+
 void ConfigureBootloader::install()
 {
     QProcessEnvironment env;
@@ -21,87 +31,95 @@ void ConfigureBootloader::install()
 
     qDebug() << " :: configure bootloader";
 
-    start("sudo", QStringList() << "/usr/bin/arch-chroot" <<
-                                   "/new/root" <<
-                                   "bootctl" <<
-                                   "install");
+    // start("sudo", QStringList() << "/usr/bin/arch-chroot"
+    //                                "/new/root"
+    //                                "bootctl"
+    //                                "install");
+    // waitForFinished(-1);
+
+    start("sudo", QStringList() << "/usr/bin/arch-chroot"
+                                   "/new/root"
+                                   "grub-install"
+                                   "--target=x86_64-efi"
+                                   "--efi-directory=/boot"
+                                   "--bootloader-id=GRUB");
     waitForFinished(-1);
 
-    // start("sudo", QStringList() << "/usr/bin/arch-chroot" <<
-    //                                "/new/root" <<
-    //                                "grub-install" <<
-    //                                "--target=x86_64-efi" <<
-    //                                "--efi-directory=/boot" <<
-    //                                "--bootloader-id=GRUB");
-    // waitForFinished(-1);
-    //
-    // start("sudo", QStringList() << "/usr/bin/arch-chroot" <<
-    //                                "/new/root"
-    //                                "grub-mkconfig" <<
-    //                                "-o" <<
-    //                                "/boot/grub/grub.cfg");
-    // waitForFinished(-1);
+    start("sudo", QStringList() << "/usr/bin/arch-chroot"
+                                   "/new/root"
+                                   "grub-mkconfig"
+                                   "-o"
+                                   "/boot/grub/grub.cfg");
+    waitForFinished(-1);
 
-    // readAll().clear();
-    //
-    // start("sudo", QStringList() << "/usr/bin/bash" << "-c" << "lsblk -lf | grep " + m_bootDevice.last(4) + " | xargs | cut -d' ' -f5");
-    // waitForFinished(-1);
-    //
-    // QString bootDevUUID = readAll();
-    //
-    // readAll().clear();
-    //
-    // start("sudo", QStringList() << "/usr/bin/bash" << "-c" << "lsblk -lf | grep " + m_rootDevice.last(4) + " | xargs | cut -d' ' -f5");
-    // waitForFinished(-1);
-    //
-    // QString rootDevUUID = readAll();
-    //
-    // readAll().clear();
-    //
-    //
-    // QFile f_grubEntry(":/data/data/40_custom");
-    //
-    // if (!f_grubEntry.open(QIODevice::ReadOnly))
-    //     qDebug() << f_grubEntry.errorString();
-    //
-    // QTextStream stream_tz(&f_grubEntry);
-    // m_grubEntry.clear();
-    //
-    // while (!stream_tz.atEnd()) {
-    //     QString line(stream_tz.readLine());
-    //
-    //     if (line.contains("XXXX")) {
-    //         line.replace("XXXX", bootDevUUID);
-    //         line.replace("\n", "");
-    //     } else if (line.contains("YYYY")) {
-    //         line.replace("YYYY", rootDevUUID);
-    //         line.replace("\n", "");
-    //     }
-    //
-    //     m_grubEntry << line;
-    // }
-    //
-    // qDebug() << m_grubEntry;
-    //
-    // for (QString line : m_grubEntry) {
-    //     start("sudo", QStringList() << "/usr/bin/arch-chroot"
-    //                                 << "/new/root"
-    //                                 << "/usr/bin/bash"
-    //                                 << "-c" << "echo " + line + " >> /etc/grub.d/40_custom");
-    //     waitForFinished(-1);
-    // }
-    //
-    // start("sudo", QStringList() << "/usr/bin/arch-chroot"
-    //                             << "/new/root"
-    //                             << "chmod"
-    //                             << "+x"
-    //                             << "/etc/grub.d/40_custom");
-    // waitForFinished(-1);
-    //
-    // start("sudo", QStringList() << "/usr/bin/arch-chroot"
-    //                             << "/new/root"
-    //                             << "update-grub");
-    // waitForFinished(-1);
+    readAll().clear();
+
+    // Get boot device UUID
+    start("sudo", QStringList() << "/usr/bin/bash" << "-c" << "lsblk -lf | grep " + m_bootDevice.right(4) + " | xargs | cut -d' ' -f4");
+    waitForFinished(-1);
+
+    QString bootDevUUID = QString(readAll()).trimmed();
+    qDebug() << " :: Boot device UUID:" << bootDevUUID;
+
+    readAll().clear();
+
+    // Get root device UUID
+    start("sudo", QStringList() << "/usr/bin/bash" << "-c" << "lsblk -lf | grep " + m_rootDevice.right(4) + " | xargs | cut -d' ' -f4");
+    waitForFinished(-1);
+
+    QString rootDevUUID = QString(readAll()).trimmed();
+    qDebug() << " :: Root device UUID:" << rootDevUUID;
+
+    readAll().clear();
+
+
+    QFile f_grubEntry(":/data/data/40_custom");
+
+    if (!f_grubEntry.open(QIODevice::ReadOnly))
+        qDebug() << f_grubEntry.errorString();
+
+    QTextStream stream_tz(&f_grubEntry);
+    m_grubEntry.clear();
+
+    while (!stream_tz.atEnd()) {
+        QString line(stream_tz.readLine());
+
+        if (line.contains("XXXX")) {
+            line.replace("XXXX", bootDevUUID);
+            line.replace("\n", "");
+        } else if (line.contains("YYYY")) {
+            line.replace("YYYY", rootDevUUID);
+            line.replace("\n", "");
+        }
+
+        m_grubEntry << line;
+    }
+
+    qDebug() << m_grubEntry;
+
+    for (QString line : m_grubEntry) {
+        // Properly escape the line for shell
+        QString escapedLine = line;
+        escapedLine.replace("\"", "\\\"");
+
+        start("sudo", QStringList() << "/usr/bin/arch-chroot"
+                                    << "/new/root"
+                                    << "/usr/bin/bash"
+                                    << "-c" << "echo \"" + escapedLine + "\" >> /etc/grub.d/40_custom");
+        waitForFinished(-1);
+    }
+
+    start("sudo", QStringList() << "/usr/bin/arch-chroot"
+                                << "/new/root"
+                                << "chmod"
+                                << "+x"
+                                << "/etc/grub.d/40_custom");
+    waitForFinished(-1);
+
+    start("sudo", QStringList() << "/usr/bin/arch-chroot"
+                                << "/new/root"
+                                << "update-grub");
+    waitForFinished(-1);
 
     qDebug() << " :: bootloader stop";
 }
@@ -134,4 +152,14 @@ qint64 ConfigureBootloader::bytesToWrite() const
 void ConfigureBootloader::close()
 {
 
+}
+
+qint64 ConfigureBootloader::readData(char *data, qint64 maxSize)
+{
+    return 0;
+}
+
+qint64 ConfigureBootloader::writeData(const char *data, qint64 maxSize)
+{
+    return maxSize;
 }

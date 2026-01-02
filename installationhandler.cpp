@@ -37,8 +37,8 @@ void InstallationHandler::init(QWidget* parent)
     m_initcpioProcess->MkInitCpio();
 
     m_configureBootloader = new ConfigureBootloader(this);
-    m_configureBootloader->m_bootDevice = m_bootDevice;
-    m_configureBootloader->m_rootDevice = m_rootDevice;
+    m_configureBootloader->setBootDevice(m_bootDevice);
+    m_configureBootloader->setRootDevice(m_rootDevice);
     m_configureBootloader->install();
 
 /*
