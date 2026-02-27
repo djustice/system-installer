@@ -1,40 +1,34 @@
 #ifndef INITCPIO_H
 #define INITCPIO_H
 
-#include <QDebug>
-
+#include <QObject>
 #include <QProcess>
-#include <QTimer>
-
+#include <QDebug>
+#include <QProcessEnvironment>
 
 class InitCpio : public QProcess
 {
     Q_OBJECT
 
 public:
-
-    InitCpio(QObject *parent);
+    explicit InitCpio(QObject *parent = nullptr);
     ~InitCpio();
 
     void MkInitCpio();
 
+    // QIODevice interface overrides
     bool open(QIODeviceBase::OpenMode mode) override;
+    void close() override;
     bool waitForReadyRead(int msecs) override;
     bool waitForBytesWritten(int msecs) override;
     qint64 bytesToWrite() const override;
-    void close() override;
 
-    QString m_rootDevice;
-    QString m_bootDevice;
+protected:
+    qint64 readData(char *data, qint64 maxSize) override;
+    qint64 writeData(const char *data, qint64 maxSize) override;
 
-public slots:
-
+private slots:
     void failedMkInitCpio();
-
-signals:
-
-    void updateProgress(QString progress);
-
 };
 
 #endif // INITCPIO_H
